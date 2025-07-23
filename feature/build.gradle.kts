@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.tinhtx.player.feature"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 29

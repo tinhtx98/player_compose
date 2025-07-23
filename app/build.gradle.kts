@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.tinhtx.player"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.tinhtx.player"
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
 

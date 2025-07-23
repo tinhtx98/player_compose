@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.tinhtx.player.core"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 29
@@ -49,6 +49,7 @@ dependencies {
     // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.material)
 
     // Compose BOM
     implementation(platform(libs.compose.bom))
