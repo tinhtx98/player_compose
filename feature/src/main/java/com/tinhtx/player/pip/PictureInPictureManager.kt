@@ -54,4 +54,11 @@ class PictureInPictureManager @Inject constructor(
             false
         }
     }
+
+    fun enterPiP() {
+        val params = PictureInPictureParams.Builder()
+            .setAspectRatio(Rational(16, 9))
+            .build()
+        (context as Activity).enterPictureInPictureMode(params)
+    }
 }

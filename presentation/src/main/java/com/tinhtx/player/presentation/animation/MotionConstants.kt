@@ -1,6 +1,11 @@
+// presentation/src/main/kotlin/com/tinhtx/player/animation/MotionConstants.kt
 package com.tinhtx.player.presentation.animation
 
 object MotionConstants {
+    const val ANIMATION_DURATION = 300
+    const val SPRING_DAMPING = 0.8f
+    const val SPRING_STIFFNESS = 200f
+
     // Animation durations
     const val DURATION_SHORT = 150
     const val DURATION_MEDIUM = 300

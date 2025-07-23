@@ -1,6 +1,8 @@
 // presentation/src/main/kotlin/com/tinhtx/player/screen/main/HomeScreen.kt
 package com.tinhtx.player.presentation.screen.main
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,8 +35,8 @@ fun HomeScreen(
     onNavigateToPlayer: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
-    val userPreferences = viewModel.userPreferences.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
+    val userPreferences by viewModel.userPreferences.collectAsState()
 
     Column(
         modifier = Modifier
@@ -55,39 +57,114 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            QuickActionCard(title = "Yêu thích", subtitle = "${uiState.favoriteCount} bài") { viewModel.onShowFavorites() }
-            QuickActionCard(title = "Gần đây", subtitle = "${uiState.recentCount} bài") { viewModel.onShowRecent() }
-            QuickActionCard(title = "Playlist", subtitle = "${uiState.playlistCount} danh sách") { viewModel.onShowPlaylists() }
+            QuickActionCard(
+                title = "Yêu thích",
+                subtitle = "${uiState.favoriteCount} bài",
+                onClick = { viewModel.onShowFavorites() }
+            )
+            QuickActionCard(
+                title = "Gần đây",
+                subtitle = "${uiState.recentCount} bài",
+                onClick = { viewModel.onShowRecent() }
+            )
+            QuickActionCard(
+                title = "Playlist",
+                subtitle = "${uiState.playlistCount} danh sách",
+                onClick = { viewModel.onShowPlaylists() }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         when (uiState.mediaItemsResource) {
-            is Resource.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            is Resource.Success -> LazyColumn {
-                items(uiState.mediaItemsResource.data.orEmpty()) { mediaItem ->
-                    WaterDropAnimation(visible = true, ageGroup = userPreferences.ageGroup) {
-                        MediaItemCard(
-                            mediaItem = mediaItem,
-                            onClick = { onNavigateToPlayer(mediaItem.id) },
-                            onFavoriteClick = { viewModel.onToggleFavorite(mediaItem.id) },
-                            onMoreClick = { viewModel.onShowMediaOptions(mediaItem.id) },
+            is Resource.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is Resource.Success -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = uiState.mediaItemsResource.data ?: emptyList(),
+                        key = { it.id }
+                    ) { mediaItem ->
+                        WaterDropAnimation(
+                            visible = true,
                             ageGroup = userPreferences.ageGroup
-                        )
+                        ) {
+                            MediaItemCard(
+                                mediaItem = mediaItem,
+                                onClick = { onNavigateToPlayer(mediaItem.id) },
+                                onFavoriteClick = { viewModel.onToggleFavorite(mediaItem.id) },
+                                onMoreClick = { viewModel.onShowMediaOptions(mediaItem.id) },
+                                ageGroup = userPreferences.ageGroup
+                            )
+                        }
                     }
                 }
             }
-            is Resource.Error -> Text("Lỗi: ${uiState.mediaItemsResource.message}", color = MaterialTheme.colorScheme.error)
+
+            is Resource.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Đã xảy ra lỗi",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Text(
+                            text = uiState.mediaItemsResource.message ?: "Lỗi không xác định",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { viewModel.onRetry() }
+                        ) {
+                            Text("Thử lại")
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun QuickActionCard(title: String, subtitle: String, onClick: () -> Unit) {
-    Card(onClick = onClick, modifier = Modifier.size(100.dp)) {
-        Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(title, fontWeight = FontWeight.Bold)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall)
+private fun QuickActionCard(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .size(100.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

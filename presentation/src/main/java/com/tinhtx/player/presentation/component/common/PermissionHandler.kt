@@ -3,7 +3,6 @@ package com.tinhtx.player.presentation.component.common
 
 import android.Manifest
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,7 +53,7 @@ fun MediaPermissionHandler(
         permissionsState.shouldShowRationale -> {
             PermissionRationaleDialog(
                 onRequestPermissions = { permissionsState.launchMultiplePermissionRequest() },
-                onDismiss = { /* Xử lý khi từ chối */ }
+                onDismiss = { /* Handle dismiss */ }
             )
         }
         else -> {

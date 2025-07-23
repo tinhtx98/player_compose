@@ -1,3 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Player</string>
+    <string name="app_name">TinhTX Player</string>
+    <string name="search_hint">Tìm kiếm nhạc, video...</string>
+    <string name="favorites">Yêu Thích</string>
+    <string name="recent">Gần Đây</string>
+    <string name="playlists">Danh Sách Phát</string>
+    <string name="settings">Cài Đặt</string>
+    <string name="play">Phát</string>
+    <string name="pause">Tạm Dừng</string>
+    <string name="next">Tiếp Theo</string>
+    <string name="previous">Trước Đó</string>
+    <string name="permission_request">Cấp Quyền Truy Cập</string>
+    <string name="permission_message">TinhTX Player cần quyền truy cập để quét và phát nhạc/video từ thiết bị của bạn.</string>
 </resources>

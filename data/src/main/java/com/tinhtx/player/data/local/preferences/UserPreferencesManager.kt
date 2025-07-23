@@ -39,7 +39,6 @@ class UserPreferencesManager @Inject constructor(
     private object PreferenceKeys {
         val AGE_GROUP = stringPreferencesKey("age_group")
         val THEME_MODE = stringPreferencesKey("theme_mode")
-        val LANGUAGE = stringPreferencesKey("language")
         // Playback Settings
         val CROSSFADE_DURATION = longPreferencesKey("crossfade_duration")
         val GAPLESS_PLAYBACK = booleanPreferencesKey("gapless_playback")
@@ -64,7 +63,7 @@ class UserPreferencesManager @Inject constructor(
                     ThemeMode.valueOf(it)
                 } ?: ThemeMode.SYSTEM,
                 primaryColor = null, // Will be implemented with dynamic colors
-                language = preferences[PreferenceKeys.LANGUAGE] ?: "vi",
+                language = "vi",
                 playbackSettings = PlaybackSettings(
                     crossfadeDuration = preferences[PreferenceKeys.CROSSFADE_DURATION] ?: 3000L,
                     gaplessPlayback = preferences[PreferenceKeys.GAPLESS_PLAYBACK] ?: false,
@@ -123,12 +122,6 @@ class UserPreferencesManager @Inject constructor(
     suspend fun updateThemeMode(themeMode: ThemeMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.THEME_MODE] = themeMode.name
-        }
-    }
-
-    suspend fun updateLanguage(language: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferenceKeys.LANGUAGE] = language
         }
     }
 

@@ -1,5 +1,6 @@
-package com.tinhtx.player.equalizer
+package com.tinhtx.player.media.equalizer
 
+import android.media.audiofx.AudioEffect
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.Virtualizer
@@ -16,15 +17,15 @@ class EqualizerManager @Inject constructor() {
     fun initialize(audioSessionId: Int) {
         try {
             equalizer = Equalizer(0, audioSessionId).apply {
-                enabled = true
+                AudioEffect.setEnabled = true
             }
 
             bassBoost = BassBoost(0, audioSessionId).apply {
-                enabled = true
+                AudioEffect.setEnabled = true
             }
 
             virtualizer = Virtualizer(0, audioSessionId).apply {
-                enabled = true
+                AudioEffect.setEnabled = true
             }
         } catch (e: Exception) {
             // Handle initialization error
@@ -99,5 +100,18 @@ class EqualizerManager @Inject constructor() {
 
     fun usePreset(preset: Short) {
         equalizer?.usePreset(preset)
+    }
+
+    fun initializeEqualizer(audioSessionId: Int) {
+        equalizer = Equalizer(0, audioSessionId)
+    }
+
+    fun getFrequencyBands(): List<FrequencyBand> {
+        // Implementation
+        return emptyList()
+    }
+
+    fun setBandLevel(bandIndex: Int, level: Short) {
+        equalizer?.setBandLevel(bandIndex.toShort(), level)
     }
 }

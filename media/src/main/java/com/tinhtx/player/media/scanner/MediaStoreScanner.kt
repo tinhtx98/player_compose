@@ -1,10 +1,11 @@
-package com.tinhtx.player.scanner
+package com.tinhtx.player.media.scanner
 
 import android.content.ContentResolver
 import android.content.Context
 import android.provider.MediaStore
-import com.tinhtx.player.model.MediaItem
+import com.tinhtx.player.domain.model.MediaItem
 import com.tinhtx.player.domain.model.MediaType
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -12,8 +13,20 @@ import javax.inject.Singleton
 
 @Singleton
 class MediaStoreScanner @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) {
+
+    suspend fun scanMediaFiles(): List<MediaItem> = withContext(dispatcher) {
+        // Implementation to scan MediaStore for audio/video
+        emptyList()
+    }
+
+    suspend fun refreshMediaItem(mediaId: String): MediaItem? = withContext(dispatcher) {
+        // Implementation to refresh single item
+        null
+    }
+
     private val contentResolver: ContentResolver = context.contentResolver
 
     suspend fun scanAudioFiles(): List<MediaItem> = withContext(Dispatchers.IO) {

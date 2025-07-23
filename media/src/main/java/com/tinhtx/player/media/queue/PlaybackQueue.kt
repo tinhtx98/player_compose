@@ -1,6 +1,6 @@
-package com.tinhtx.player.queue
+package com.tinhtx.player.media.queue
 
-import com.tinhtx.player.model.MediaItem
+import com.tinhtx.player.domain.model.MediaItem
 import com.tinhtx.player.domain.model.RepeatMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,9 @@ import javax.inject.Singleton
 class PlaybackQueue @Inject constructor() {
 
     private val _queue = MutableStateFlow<List<MediaItem>>(emptyList())
-    val queue: StateFlow<List<MediaItem>> = _queue.asStateFlow()
+    val queueFlow: StateFlow<List<MediaItem>> = _queue.asStateFlow()
+
+    private val queue = mutableListOf<MediaItem>()
 
     private val _currentIndex = MutableStateFlow(-1)
     val currentIndex: StateFlow<Int> = _currentIndex.asStateFlow()
@@ -50,6 +52,14 @@ class PlaybackQueue @Inject constructor() {
                 _currentIndex.value = 0
             }
         }
+    }
+
+    fun add(item: MediaItem) {
+        queue.add(item)
+    }
+
+    fun getCurrent(): MediaItem? {
+        return queue.firstOrNull()
     }
 
     fun getCurrentItem(): MediaItem? {

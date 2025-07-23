@@ -75,6 +75,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.media3.ui)
     ksp(libs.hilt.compiler)
 
     // Image Loading
