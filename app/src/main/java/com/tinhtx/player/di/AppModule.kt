@@ -1,6 +1,10 @@
+// app/src/main/java/com/tinhtx/player/di/AppModule.kt
 package com.tinhtx.player.di
 
 import android.content.Context
+import androidx.media3.common.AudioAttributes
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +21,27 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApplicationContext(@ApplicationContext context: Context): Context = context
+    fun provideExoPlayer(@ApplicationContext context: Context): ExoPlayer {
+        return ExoPlayer.Builder(context)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build(),
+                true
+            )
+            .setHandleAudioBecomingNoisy(true)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMediaSession(
+        @ApplicationContext context: Context,
+        exoPlayer: ExoPlayer
+    ): MediaSession {
+        return MediaSession.Builder(context, exoPlayer).build()
+    }
 
     @Provides
     @IoDispatcher
@@ -26,10 +50,6 @@ object AppModule {
     @Provides
     @MainDispatcher
     fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
-
-    @Provides
-    @DefaultDispatcher
-    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }
 
 @Qualifier
@@ -39,7 +59,3 @@ annotation class IoDispatcher
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class MainDispatcher
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class DefaultDispatcher
