@@ -16,6 +16,7 @@ import com.tinhtx.player.domain.model.SortBy
 import com.tinhtx.player.domain.model.SortOrder
 import com.tinhtx.player.domain.model.UiSettings
 import com.tinhtx.player.domain.model.UserPreferences
+import com.tinhtx.player.domain.repository.MediaRepository
 import com.tinhtx.player.domain.usecase.GetMediaItemsUseCase
 import com.tinhtx.player.domain.usecase.ManagePlaylistUseCase
 import com.tinhtx.player.domain.usecase.PlayMediaUseCase
@@ -35,7 +36,8 @@ class HomeViewModel @Inject constructor(
     private val getMediaItemsUseCase: GetMediaItemsUseCase,
     private val playMediaUseCase: PlayMediaUseCase,
     private val managePlaylistUseCase: ManagePlaylistUseCase,
-    private val userPreferencesManager: UserPreferencesManager
+    private val userPreferencesManager: UserPreferencesManager,
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -93,8 +95,30 @@ class HomeViewModel @Inject constructor(
         )
 
     init {
-        loadMediaItems()
+        // Chỉ load stats, không tự động quét media
+        // Media sẽ được quét khi permission được cấp
         loadStats()
+    }
+
+    private fun scanAndLoadMediaItems() {
+        viewModelScope.launch {
+            try {
+                // Hiển thị loading state
+                _uiState.value = _uiState.value.copy(
+                    mediaItemsResource = Resource.Loading()
+                )
+
+                // Quét media từ thiết bị trước
+                mediaRepository.scanMediaLibrary()
+
+                // Sau đó load từ database
+                loadMediaItems()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    mediaItemsResource = Resource.Error(e.message ?: "Lỗi quét media")
+                )
+            }
+        }
     }
 
     private fun loadMediaItems() {
@@ -164,7 +188,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onRetry() {
-        loadMediaItems()
+        scanAndLoadMediaItems()
+    }
+
+    fun refreshMediaLibrary() {
+        scanAndLoadMediaItems()
     }
 }
 

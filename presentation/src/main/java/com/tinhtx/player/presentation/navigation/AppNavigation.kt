@@ -20,6 +20,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -28,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tinhtx.player.core.navigation.Screen
+import com.tinhtx.player.presentation.component.common.MediaPermissionHandler
 import com.tinhtx.player.presentation.screen.collection.CollectionScreen
 import com.tinhtx.player.presentation.screen.main.HomeScreen
 import com.tinhtx.player.presentation.screen.player.MusicPlayerScreen
@@ -46,6 +50,19 @@ val navItems = listOf(
 
 @Composable
 fun AppNavigation() {
+    var permissionsGranted by remember { mutableStateOf(false) }
+
+    MediaPermissionHandler(
+        onPermissionsGranted = {
+            permissionsGranted = true
+        }
+    ) {
+        AppNavigationContent(permissionsGranted = permissionsGranted)
+    }
+}
+
+@Composable
+private fun AppNavigationContent(permissionsGranted: Boolean) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -83,6 +100,7 @@ fun AppNavigation() {
                 enterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
                 exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() }) {
                 HomeScreen(
+                    permissionsGranted = permissionsGranted,
                     onNavigateToSearch = { navController.navigate(Screen.Search.route) },
                     onNavigateToPlayer = { mediaId ->
                         // UPDATE: Sử dụng string template để navigate, fix argument mismatch (Screen.MusicPlayer là object, route là string const)

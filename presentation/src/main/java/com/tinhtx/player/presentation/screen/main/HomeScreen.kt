@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,12 +33,20 @@ import com.tinhtx.player.presentation.animation.WaterDropAnimation
 
 @Composable
 fun HomeScreen(
+    permissionsGranted: Boolean,
     onNavigateToSearch: () -> Unit,
     onNavigateToPlayer: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val userPreferences by viewModel.userPreferences.collectAsState()
+
+    // Trigger quét media khi quyền được cấp
+    LaunchedEffect(permissionsGranted) {
+        if (permissionsGranted) {
+            viewModel.refreshMediaLibrary()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -120,18 +129,19 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Đã xảy ra lỗi",
+                            text = "Không tìm thấy media",
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Text(
-                            text = uiState.mediaItemsResource.message ?: "Lỗi không xác định",
-                            style = MaterialTheme.typography.bodyMedium
+                            text = uiState.mediaItemsResource.message ?: "Vui lòng kiểm tra quyền truy cập hoặc thử quét lại",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { viewModel.onRetry() }
                         ) {
-                            Text("Thử lại")
+                            Text("Quét lại media")
                         }
                     }
                 }
