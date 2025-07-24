@@ -2,6 +2,8 @@
 package com.tinhtx.player.di
 
 import android.content.Context
+import com.tinhtx.player.data.di.IoDispatcher as DataIoDispatcher
+import com.tinhtx.player.media.di.IoDispatcher as MediaIoDispatcher
 import com.tinhtx.player.data.local.database.dao.MediaDao
 import com.tinhtx.player.data.local.database.dao.PlaylistDao
 import com.tinhtx.player.data.local.preferences.UserPreferencesManager
@@ -29,7 +31,7 @@ object MediaModule {
     @Singleton
     fun provideMediaStoreScanner(
         @ApplicationContext context: Context,
-        @IoDispatcher dispatcher: CoroutineDispatcher
+        @MediaIoDispatcher dispatcher: CoroutineDispatcher
     ): MediaStoreScanner {
         return MediaStoreScanner(context, dispatcher)
     }
@@ -66,7 +68,7 @@ object MediaModule {
     fun provideMediaRepository(
         mediaDao: MediaDao,
         mediaStoreScanner: MediaStoreScanner,
-        @IoDispatcher dispatcher: CoroutineDispatcher
+        @DataIoDispatcher dispatcher: CoroutineDispatcher
     ): MediaRepository {
         return MediaRepositoryImpl(mediaDao, mediaStoreScanner, dispatcher)
     }
@@ -75,7 +77,7 @@ object MediaModule {
     @Singleton
     fun providePlaylistRepository(
         playlistDao: PlaylistDao,
-        @IoDispatcher dispatcher: CoroutineDispatcher
+        @DataIoDispatcher dispatcher: CoroutineDispatcher
     ): PlaylistRepository {
         return PlaylistRepositoryImpl(playlistDao, dispatcher)
     }

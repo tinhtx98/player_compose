@@ -5,51 +5,51 @@ import com.tinhtx.player.domain.model.MediaItem
 import com.tinhtx.player.domain.model.RepeatMode
 import com.tinhtx.player.domain.model.ShuffleMode
 import com.tinhtx.player.domain.repository.MediaRepository
-import com.tinhtx.player.media.playback.ExoPlayerManager
+import com.tinhtx.player.domain.repository.PlaybackManager
 import javax.inject.Inject
 
 class PlayMediaUseCase @Inject constructor(
     private val mediaRepository: MediaRepository,
-    private val exoPlayerManager: ExoPlayerManager
+    private val playbackManager: PlaybackManager
 ) {
     fun playMediaItem(mediaItem: MediaItem) {
-        exoPlayerManager.playMediaItem(mediaItem)
+        playbackManager.playMediaItem(mediaItem)
     }
 
     fun playMediaItems(mediaItems: List<MediaItem>, startIndex: Int = 0) {
-        exoPlayerManager.playMediaItems(mediaItems, startIndex)
+        playbackManager.playMediaItems(mediaItems, startIndex)
     }
 
     fun pause() {
-        exoPlayerManager.pause()
+        playbackManager.pause()
     }
 
     fun resume() {
-        exoPlayerManager.play()
+        playbackManager.play()
     }
 
     fun skipToNext() {
-        exoPlayerManager.seekToNext()
+        playbackManager.seekToNext()
     }
 
     fun skipToPrevious() {
-        exoPlayerManager.seekToPrevious()
+        playbackManager.seekToPrevious()
     }
 
     fun seekTo(position: Long) {
-        exoPlayerManager.seekTo(position)
+        playbackManager.seekTo(position)
     }
 
     fun setRepeatMode(repeatMode: RepeatMode) {
-        exoPlayerManager.setRepeatMode(repeatMode)
+        playbackManager.setRepeatMode(repeatMode)
     }
 
     fun setShuffleMode(shuffleMode: ShuffleMode) {
-        exoPlayerManager.setShuffleMode(shuffleMode)
+        playbackManager.setShuffleMode(shuffleMode)
     }
 
     fun setPlaybackSpeed(speed: Float) {
-        exoPlayerManager.setPlaybackSpeed(speed)
+        playbackManager.setPlaybackSpeed(speed)
     }
 
     suspend fun setFavorite(mediaId: String, isFavorite: Boolean) {

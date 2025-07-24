@@ -4,7 +4,7 @@ package com.tinhtx.player.data.repository
 import com.tinhtx.player.data.local.database.dao.MediaDao
 import com.tinhtx.player.data.mapper.toDomain
 import com.tinhtx.player.data.mapper.toEntity
-import com.tinhtx.player.di.IoDispatcher
+import com.tinhtx.player.data.di.IoDispatcher
 import com.tinhtx.player.domain.model.AlbumInfo
 import com.tinhtx.player.domain.model.ArtistInfo
 import com.tinhtx.player.domain.model.MediaItem

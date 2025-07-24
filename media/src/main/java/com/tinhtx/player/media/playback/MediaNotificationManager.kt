@@ -19,16 +19,20 @@ class MediaNotificationManager @Inject constructor(
     private val exoPlayer: ExoPlayer
 ) {
 
-    private val notificationManager = PlayerNotificationManager.Builder(context, Constants.MEDIA_NOTIFICATION_ID, Constants.MEDIA_NOTIFICATION_CHANNEL_ID)
-        .setChannelName("TinhTX Player Playback")
-        .setChannelDescription("Thông báo phát nhạc")
+    private val notificationManager = PlayerNotificationManager.Builder(
+        context,
+        Constants.MEDIA_NOTIFICATION_ID,
+        Constants.MEDIA_NOTIFICATION_CHANNEL_ID
+    )
+        .setChannelDescriptionResourceId(android.R.string.ok) // Use system resource temporarily
         .setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
             override fun getCurrentContentTitle(player: Player): CharSequence {
                 return "Title" // Get from current media
             }
 
             override fun createCurrentContentIntent(player: Player): PendingIntent? {
-                return PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
+                // Return null for now since MainActivity doesn't exist
+                return null
             }
 
             override fun getCurrentContentText(player: Player): CharSequence? {

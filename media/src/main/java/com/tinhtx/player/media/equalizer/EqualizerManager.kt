@@ -17,15 +17,15 @@ class EqualizerManager @Inject constructor() {
     fun initialize(audioSessionId: Int) {
         try {
             equalizer = Equalizer(0, audioSessionId).apply {
-                AudioEffect.setEnabled = true
+                enabled = true
             }
 
             bassBoost = BassBoost(0, audioSessionId).apply {
-                AudioEffect.setEnabled = true
+                enabled = true
             }
 
             virtualizer = Virtualizer(0, audioSessionId).apply {
-                AudioEffect.setEnabled = true
+                enabled = true
             }
         } catch (e: Exception) {
             // Handle initialization error
@@ -106,9 +106,11 @@ class EqualizerManager @Inject constructor() {
         equalizer = Equalizer(0, audioSessionId)
     }
 
-    fun getFrequencyBands(): List<FrequencyBand> {
-        // Implementation
-        return emptyList()
+    fun getFrequencyBands(): List<Int> {
+        val numberOfBands = equalizer?.numberOfBands?.toInt() ?: 0
+        return (0 until numberOfBands).map { band ->
+            equalizer?.getCenterFreq(band.toShort()) ?: 0
+        }
     }
 
     fun setBandLevel(bandIndex: Int, level: Short) {

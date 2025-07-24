@@ -40,8 +40,10 @@ android {
 }
 
 dependencies {
-    // Module dependencies
+    // Domain module dependency
     implementation(project(":domain"))
+    // Media module dependency
+    implementation(project(":media"))
 
     // Core Android
     implementation(libs.androidx.core.ktx)

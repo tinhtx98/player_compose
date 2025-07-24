@@ -14,6 +14,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import com.tinhtx.player.data.di.IoDispatcher as DataIoDispatcher
+import com.tinhtx.player.media.di.IoDispatcher as MediaIoDispatcher
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -50,6 +52,14 @@ object AppModule {
     @Provides
     @MainDispatcher
     fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+
+    @Provides
+    @DataIoDispatcher
+    fun provideDataIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @MediaIoDispatcher
+    fun provideMediaIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }
 
 @Qualifier

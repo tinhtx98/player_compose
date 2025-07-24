@@ -23,7 +23,8 @@ fun SystemBarsController(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = view.context as? Activity ?: return@SideEffect
+            val activity = view.context as? Activity ?: return@SideEffect
+            val window = activity.window
             //window.statusBarColor = statusBarColor.toArgb()
             //window.navigationBarColor = navigationBarColor.toArgb()
 

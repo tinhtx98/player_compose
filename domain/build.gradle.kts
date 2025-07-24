@@ -40,8 +40,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":data"))
-    implementation(project(":media"))
+    // Remove the circular dependency - domain should not depend on data
+    // implementation(project(":data")) // REMOVED
+
     // Core Android
     implementation(libs.androidx.core.ktx)
 

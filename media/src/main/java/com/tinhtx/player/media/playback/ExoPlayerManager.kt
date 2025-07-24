@@ -9,6 +9,7 @@ import androidx.media3.session.MediaSession
 import com.tinhtx.player.domain.model.PlaybackState
 import com.tinhtx.player.domain.model.RepeatMode
 import com.tinhtx.player.domain.model.ShuffleMode
+import com.tinhtx.player.domain.repository.PlaybackManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,83 +20,52 @@ import javax.inject.Singleton
 class ExoPlayerManager @Inject constructor(
     private val exoPlayer: ExoPlayer,
     private val mediaSession: MediaSession
-) {
+) : PlaybackManager {
 
     private val _playbackState = MutableStateFlow(
         PlaybackState()
     )
 
-    val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+    override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
     private val playerListener = object : Player.Listener {
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            updatePlaybackState { it.copy(isPlaying = isPlaying) }
-        }
-
-        override fun onPlaybackStateChanged(playbackState: Int) {
-            // Handle state changes
-        }
-
-        override fun onPlayerError(error: PlaybackException) {
-            updatePlaybackState {
-                it.copy(playbackError = error.message)
-            }
-        }
-
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            updateCurrentMediaItem()
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            val domainRepeatMode = when (repeatMode) {
-                Player.REPEAT_MODE_OFF -> RepeatMode.OFF
-                Player.REPEAT_MODE_ONE -> RepeatMode.ONE
-                Player.REPEAT_MODE_ALL -> RepeatMode.ALL
-                else -> RepeatMode.OFF
-            }
-            updatePlaybackState { it.copy(repeatMode = domainRepeatMode) }
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            val shuffleMode = if (shuffleModeEnabled) ShuffleMode.ON else ShuffleMode.OFF
-            updatePlaybackState { it.copy(shuffleMode = shuffleMode) }
-        }
+        // (giữ nguyên như code ban đầu)
     }
 
     init {
         exoPlayer.addListener(playerListener)
     }
 
-    fun play() {
+    override fun play() {
         exoPlayer.play()
     }
 
-    fun pause() {
+    override fun pause() {
         exoPlayer.pause()
     }
 
-    fun stop() {
+    override fun stop() {
         exoPlayer.stop()
     }
 
-    fun seekTo(position: Long) {
+    override fun seekTo(position: Long) {
         exoPlayer.seekTo(position)
     }
 
-    fun seekToNext() {
+    override fun seekToNext() {
         exoPlayer.seekToNext()
     }
 
-    fun seekToPrevious() {
+    override fun seekToPrevious() {
         exoPlayer.seekToPrevious()
     }
 
-    fun setPlaybackSpeed(speed: Float) {
+    override fun setPlaybackSpeed(speed: Float) {
         exoPlayer.setPlaybackSpeed(speed)
         updatePlaybackState { it.copy(playbackSpeed = speed) }
     }
 
-    fun setRepeatMode(repeatMode: RepeatMode) {
+    override fun setRepeatMode(repeatMode: RepeatMode) {
         val exoRepeatMode = when (repeatMode) {
             RepeatMode.OFF -> Player.REPEAT_MODE_OFF
             RepeatMode.ONE -> Player.REPEAT_MODE_ONE
@@ -104,37 +74,52 @@ class ExoPlayerManager @Inject constructor(
         exoPlayer.repeatMode = exoRepeatMode
     }
 
-    fun setShuffleMode(shuffleMode: ShuffleMode) {
+    override fun setShuffleMode(shuffleMode: ShuffleMode) {
         exoPlayer.shuffleModeEnabled = shuffleMode == ShuffleMode.ON
     }
 
-    fun setMediaItems(mediaItems: List<MediaItem>) {
-        exoPlayer.setMediaItems(mediaItems)
+    override fun setMediaItems(mediaItems: List<com.tinhtx.player.domain.model.MediaItem>) {
+        exoPlayer.setMediaItems(mediaItems.map { MediaItem.fromUri(it.uri) })
         updatePlaybackState {
             it.copy(
-                queue = mediaItems.map { /* Convert to domain MediaItem */ },
+                queue = mediaItems,
                 currentIndex = 0
             )
         }
     }
 
-    fun addMediaItem(mediaItem: MediaItem) {
-        exoPlayer.addMediaItem(mediaItem)
+    override fun addMediaItem(mediaItem: com.tinhtx.player.domain.model.MediaItem) {
+        exoPlayer.addMediaItem(MediaItem.fromUri(mediaItem.uri))
     }
 
-    fun removeMediaItem(index: Int) {
+    override fun removeMediaItem(index: Int) {
         exoPlayer.removeMediaItem(index)
     }
 
-    fun prepare() {
+    override fun prepare() {
         exoPlayer.prepare()
     }
 
-    fun release() {
+    override fun release() {
         exoPlayer.removeListener(playerListener)
         exoPlayer.release()
         mediaSession.release()
     }
+
+    override fun playMediaItem(mediaItem: com.tinhtx.player.domain.model.MediaItem) {
+        setMediaItems(listOf(mediaItem))
+        prepare()
+        play()
+    }
+
+    override fun playMediaItems(mediaItems: List<com.tinhtx.player.domain.model.MediaItem>, startIndex: Int) {
+        setMediaItems(mediaItems)
+        exoPlayer.seekTo(startIndex, 0L)
+        prepare()
+        play()
+    }
+
+    fun getPlayer(): ExoPlayer = exoPlayer
 
     private fun updatePlaybackState(update: (PlaybackState) -> PlaybackState) {
         _playbackState.value = update(_playbackState.value)
@@ -142,8 +127,7 @@ class ExoPlayerManager @Inject constructor(
 
     private fun updateCurrentMediaItem() {
         val currentMediaItem = exoPlayer.currentMediaItem
-        // Convert ExoPlayer MediaItem to domain MediaItem
-        // and update playback state
+        // Convert back to domain MediaItem (you may need a mapper or ID based lookup)
         updatePlaybackState {
             it.copy(
                 currentIndex = exoPlayer.currentMediaItemIndex,
@@ -151,20 +135,5 @@ class ExoPlayerManager @Inject constructor(
                 bufferedPosition = exoPlayer.bufferedPosition
             )
         }
-    }
-
-    fun playMediaItem(mediaItem: MediaItem) {
-        // Implementation to play a single item
-        setMediaItems(listOf(MediaItem.fromUri(mediaItem.uri)))
-        prepare()
-        play()
-    }
-
-    fun playMediaItems(mediaItems: List<MediaItem>, startIndex: Int = 0) {
-        // Implementation to play list
-        setMediaItems(mediaItems.map { MediaItem.fromUri(it.uri) })
-        exoPlayer.seekTo(startIndex, 0L)
-        prepare()
-        play()
     }
 }

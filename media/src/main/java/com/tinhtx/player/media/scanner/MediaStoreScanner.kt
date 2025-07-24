@@ -5,6 +5,7 @@ import android.content.Context
 import android.provider.MediaStore
 import com.tinhtx.player.domain.model.MediaItem
 import com.tinhtx.player.domain.model.MediaType
+import com.tinhtx.player.media.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -80,16 +81,24 @@ class MediaStoreScanner @Inject constructor(
                 audioFiles.add(
                     MediaItem(
                         id = id,
+                        uri = uri,
+                        displayName = title,
                         title = title,
                         artist = artist,
                         album = album,
                         duration = duration,
-                        uri = uri,
-                        mediaType = MediaType.AUDIO,
                         size = size,
                         dateAdded = dateAdded,
-                        path = path,
-                        mimeType = mimeType
+                        dateModified = dateAdded, // Use same as dateAdded for now
+                        mimeType = mimeType,
+                        albumArtUri = null, // Will be populated later if available
+                        track = null, // Will be populated later if available
+                        year = null, // Will be populated later if available
+                        genre = null, // Will be populated later if available
+                        bitrate = null, // Will be populated later if available
+                        sampleRate = null, // Will be populated later if available
+                        type = MediaType.AUDIO,
+                        path = path
                     )
                 )
             }
@@ -148,16 +157,24 @@ class MediaStoreScanner @Inject constructor(
                 videoFiles.add(
                     MediaItem(
                         id = id,
+                        uri = uri,
+                        displayName = title,
                         title = title,
                         artist = artist,
                         album = album,
                         duration = duration,
-                        uri = uri,
-                        mediaType = MediaType.VIDEO,
                         size = size,
                         dateAdded = dateAdded,
-                        path = path,
-                        mimeType = mimeType
+                        dateModified = dateAdded, // Use same as dateAdded for now
+                        mimeType = mimeType,
+                        albumArtUri = null, // Will be populated later if available
+                        track = null, // Will be populated later if available
+                        year = null, // Will be populated later if available
+                        genre = null, // Will be populated later if available
+                        bitrate = null, // Will be populated later if available
+                        sampleRate = null, // Will be populated later if available
+                        type = MediaType.VIDEO,
+                        path = path
                     )
                 )
             }

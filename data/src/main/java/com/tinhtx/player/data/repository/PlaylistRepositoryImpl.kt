@@ -5,7 +5,7 @@ import com.tinhtx.player.data.local.database.dao.PlaylistDao
 import com.tinhtx.player.data.local.database.entities.PlaylistMediaEntity
 import com.tinhtx.player.data.mapper.toDomain
 import com.tinhtx.player.data.mapper.toEntity
-import com.tinhtx.player.di.IoDispatcher
+import com.tinhtx.player.data.di.IoDispatcher
 import com.tinhtx.player.domain.model.PlaylistInfo
 import com.tinhtx.player.domain.repository.PlaylistRepository
 import kotlinx.coroutines.CoroutineDispatcher
