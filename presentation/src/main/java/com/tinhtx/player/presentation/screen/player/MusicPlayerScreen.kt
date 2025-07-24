@@ -6,6 +6,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode as AnimationRepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,17 +66,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.tinhtx.player.core.common.formatAsDuration
-import com.tinhtx.player.domain.model.RepeatMode
+import com.tinhtx.player.domain.model.RepeatMode as PlaybackRepeatMode
 import com.tinhtx.player.domain.model.ShuffleMode
 import com.tinhtx.player.presentation.R
+import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
 import com.tinhtx.player.presentation.component.media.EqualizerBottomSheet
 import com.tinhtx.player.presentation.component.media.LyricsPanel
 import com.tinhtx.player.presentation.component.media.EqualizerBottomSheetContent
 import com.tinhtx.player.presentation.component.animation.FallingLeavesAnimation
 import com.tinhtx.player.presentation.component.animation.WaterWaveAnimation
 
+// presentation/screen/player/MusicPlayerScreen.kt
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MusicPlayerScreen(
     mediaId: String,
@@ -82,36 +88,35 @@ fun MusicPlayerScreen(
     onNavigateToVideoPlayer: (String) -> Unit,
     viewModel: MusicPlayerViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val playbackState by viewModel.playbackState.collectAsState()
-    val userPreferences by viewModel.userPreferences.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val userPreferences by viewModel.userPreferences.collectAsStateWithLifecycle()
+    val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
 
     var showEqualizer by remember { mutableStateOf(false) }
     var showLyrics by remember { mutableStateOf(false) }
 
-    LaunchedEffect(mediaId) {
-        viewModel.loadAndPlayMediaItem(mediaId)
-    }
-
-    // Album Art Rotation Animation
+    // Animation states
     val albumArtRotation by animateFloatAsState(
         targetValue = if (playbackState.isPlaying) 360f else 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+            repeatMode = AnimationRepeatMode.Restart
         ),
         label = "Album Art Rotation"
     )
 
-    // Pulse Scale Animation
     val pulseScale by animateFloatAsState(
         targetValue = if (playbackState.isPlaying) 1.05f else 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+            repeatMode = AnimationRepeatMode.Reverse
         ),
         label = "Pulse Scale"
     )
+
+    LaunchedEffect(mediaId) {
+        viewModel.loadAndPlayMediaItem(mediaId)
+    }
 
     Box(
         modifier = Modifier
@@ -132,7 +137,7 @@ fun MusicPlayerScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Section
+            // Top Bar with Back Button
             WaterWaveAnimation(
                 visible = true,
                 ageGroup = userPreferences.ageGroup
@@ -145,21 +150,21 @@ fun MusicPlayerScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Quay lại",
+                            contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
 
                     Text(
-                        text = "Đang phát",
+                        text = "Now Playing",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground
                     )
 
-                    IconButton(onClick = { /* Options */ }) {
+                    IconButton(onClick = { /* More options */ }) {
                         Icon(
                             Icons.Default.MoreVert,
-                            contentDescription = "Thêm tùy chọn",
+                            contentDescription = "More",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -168,15 +173,15 @@ fun MusicPlayerScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Album Art
-            FallingLeavesAnimation(
+            // Album Art Section
+            FlowerBloomAnimation(
                 visible = uiState.currentMediaItem != null,
                 ageGroup = userPreferences.ageGroup
             ) {
                 Box(
                     modifier = Modifier
                         .size(320.dp)
-                        .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius.dp))
+                        .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius))
                         .background(
                             brush = Brush.radialGradient(
                                 colors = listOf(
@@ -191,10 +196,10 @@ fun MusicPlayerScreen(
                 ) {
                     AsyncImage(
                         model = uiState.currentMediaItem?.albumArtUri,
-                        contentDescription = "Ảnh album",
+                        contentDescription = "Album Art",
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius.dp)),
+                            .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius)),
                         contentScale = ContentScale.Crop,
                         error = painterResource(R.drawable.ic_music_note),
                         placeholder = painterResource(R.drawable.ic_music_note)
@@ -213,7 +218,7 @@ fun MusicPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = uiState.currentMediaItem?.title ?: "Không rõ",
+                        text = uiState.currentMediaItem?.title ?: "Unknown Title",
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
@@ -224,7 +229,7 @@ fun MusicPlayerScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = uiState.currentMediaItem?.artist ?: "Không rõ",
+                        text = uiState.currentMediaItem?.artist ?: "Unknown Artist",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
@@ -257,13 +262,13 @@ fun MusicPlayerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = playbackState.playbackPosition.formatAsDuration(),
+                            text = formatTime(playbackState.playbackPosition),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                         )
 
                         Text(
-                            text = playbackState.duration.formatAsDuration(),
+                            text = formatTime(playbackState.duration),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                         )
@@ -289,7 +294,7 @@ fun MusicPlayerScreen(
                     ) {
                         Icon(
                             Icons.Default.Shuffle,
-                            contentDescription = "Trộn",
+                            contentDescription = "Shuffle",
                             tint = if (playbackState.shuffleMode == ShuffleMode.ON)
                                 MaterialTheme.colorScheme.primary
                             else
@@ -303,7 +308,7 @@ fun MusicPlayerScreen(
                     ) {
                         Icon(
                             Icons.Default.SkipPrevious,
-                            contentDescription = "Trước",
+                            contentDescription = "Previous",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -327,7 +332,7 @@ fun MusicPlayerScreen(
                         ) { isPlaying ->
                             Icon(
                                 if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = if (isPlaying) "Tạm dừng" else "Phát",
+                                contentDescription = if (isPlaying) "Pause" else "Play",
                                 tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -340,7 +345,7 @@ fun MusicPlayerScreen(
                     ) {
                         Icon(
                             Icons.Default.SkipNext,
-                            contentDescription = "Tiếp theo",
+                            contentDescription = "Next",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -351,12 +356,12 @@ fun MusicPlayerScreen(
                     ) {
                         Icon(
                             when (playbackState.repeatMode) {
-                                RepeatMode.ONE -> Icons.Default.RepeatOne
-                                RepeatMode.ALL -> Icons.Default.Repeat
+                                PlaybackRepeatMode.ONE -> Icons.Default.RepeatOne
+                                PlaybackRepeatMode.ALL -> Icons.Default.Repeat
                                 else -> Icons.Default.Repeat
                             },
-                            contentDescription = "Lặp",
-                            tint = if (playbackState.repeatMode != RepeatMode.OFF)
+                            contentDescription = "Repeat",
+                            tint = if (playbackState.repeatMode != PlaybackRepeatMode.OFF)
                                 MaterialTheme.colorScheme.primary
                             else
                                 MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -383,7 +388,7 @@ fun MusicPlayerScreen(
                 IconButton(onClick = { showLyrics = !showLyrics }) {
                     Icon(
                         Icons.Default.Lyrics,
-                        contentDescription = "Lời bài hát",
+                        contentDescription = "Lyrics",
                         tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     )
                 }
@@ -394,7 +399,7 @@ fun MusicPlayerScreen(
                             Icons.Default.Favorite
                         else
                             Icons.Default.FavoriteBorder,
-                        contentDescription = "Yêu thích",
+                        contentDescription = "Favorite",
                         tint = if (uiState.currentMediaItem?.isFavorite == true)
                             Color.Red
                         else
@@ -408,36 +413,33 @@ fun MusicPlayerScreen(
     // Equalizer Bottom Sheet
     if (showEqualizer) {
         EqualizerBottomSheet(
-            visible = showEqualizer,
+            visible = true,
             onDismiss = { showEqualizer = false }
         ) {
-            // Add equalizer content here
-            EqualizerBottomSheetContent(
-                frequencyBands = emptyList(), // Replace with actual data from viewModel
-                currentPreset = null,
-                presets = emptyList(),
-                onApplyPreset = { },
-                onSetBandLevel = { _, _ -> },
-                onSetBassBoost = { },
-                onSetVirtualizer = { },
-                bassBoostStrength = 0,
-                virtualizerStrength = 0
-            )
+            // Content của bottom sheet sẽ được render bên trong component
         }
     }
 
     // Lyrics Panel
     if (showLyrics) {
         LyricsPanel(
-            visible = showLyrics,
-            lyrics = uiState.lyrics,
+            visible = true,
+            onDismiss = { showLyrics = false },
             currentPosition = playbackState.playbackPosition,
-            onDismiss = { showLyrics = false }
+            lyrics = uiState.lyrics ?: ""
         )
     }
 }
 
 @Composable
 private fun formatTime(milliseconds: Long): String {
-    return milliseconds.formatAsDuration()
+    val seconds = (milliseconds / 1000) % 60
+    val minutes = (milliseconds / (1000 * 60)) % 60
+    val hours = (milliseconds / (1000 * 60 * 60)) % 24
+
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%d:%02d", minutes, seconds)
+    }
 }
