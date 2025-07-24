@@ -34,5 +34,5 @@ interface MediaRepository {
     suspend fun setFavorite(mediaId: String, isFavorite: Boolean)
     suspend fun scanMediaLibrary()
     suspend fun deleteMediaItem(mediaId: String)
-    suspend fun refreshMediaItem(mediaId: String)
+    suspend fun refreshMediaItem(itemId: Long, type: MediaType): MediaItem?
 }

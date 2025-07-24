@@ -208,11 +208,8 @@ class MediaRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshMediaItem(mediaId: String) {
-        withContext(dispatcher) {
-            mediaStoreScanner.refreshMediaItem(mediaId)?.let { mediaItem ->
-                mediaDao.updateMediaItem(mediaItem.toEntity())
-            }
-        }
+    override suspend fun refreshMediaItem(itemId: Long, type: MediaType): MediaItem? {
+        val refreshedItem = mediaStoreScanner.refreshMediaItem(itemId, type)
+        return refreshedItem
     }
 }

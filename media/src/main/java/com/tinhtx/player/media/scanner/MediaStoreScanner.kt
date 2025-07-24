@@ -19,13 +19,180 @@ class MediaStoreScanner @Inject constructor(
 ) {
 
     suspend fun scanMediaFiles(): List<MediaItem> = withContext(dispatcher) {
-        // Implementation to scan MediaStore for audio/video
-        emptyList()
+        val mediaItems = mutableListOf<MediaItem>()
+        val contentResolver: ContentResolver = context.contentResolver
+
+        // Projection (các cột cần query - thêm đầy đủ cho metadata)
+        val projection = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.MediaColumns.DURATION,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.MediaColumns.DATE_ADDED,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.DATA // Để lấy path hoặc uri string
+        )
+
+        // Query cho audio
+        contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null, null, null
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))
+                val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)) ?: ""
+                val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE))
+                val artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)) ?: "" // Non-null default
+                val album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)) ?: "" // Non-null default
+                val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION))
+                val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+                val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED))
+                val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+                val mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+                val path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                val uriString = path ?: "" // Hoặc build uri string: "content://media/external/audio/media/$id"
+
+                mediaItems.add(
+                    MediaItem(
+                        id = id.toString(),
+                        uri = uriString, // String: sử dụng path hoặc uri string
+                        displayName = displayName,
+                        title = title,
+                        artist = artist,
+                        album = album,
+                        duration = duration,
+                        size = size,
+                        dateAdded = dateAdded,
+                        dateModified = dateModified,
+                        mimeType = mimeType,
+                        albumArtUri = null, // TODO: Query album art
+                        track = null,
+                        year = null,
+                        genre = null,
+                        bitrate = null,
+                        sampleRate = null,
+                        type = MediaType.AUDIO,
+                        path = path
+                    )
+                )
+            }
+        }
+
+        // Query cho video (tương tự, artist và album set default "" dù không áp dụng)
+        contentResolver.query(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null, null, null
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))
+                val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)) ?: ""
+                val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE))
+                val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION))
+                val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+                val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED))
+                val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+                val mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+                val path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                val uriString = path ?: "" // Hoặc build uri string: "content://media/external/video/media/$id"
+
+                mediaItems.add(
+                    MediaItem(
+                        id = id.toString(),
+                        uri = uriString,
+                        displayName = displayName,
+                        title = title,
+                        artist = "", // Default "" cho video
+                        album = "", // Default "" cho video
+                        duration = duration,
+                        size = size,
+                        dateAdded = dateAdded,
+                        dateModified = dateModified,
+                        mimeType = mimeType,
+                        albumArtUri = null,
+                        track = null,
+                        year = null,
+                        genre = null,
+                        bitrate = null,
+                        sampleRate = null,
+                        type = MediaType.VIDEO,
+                        path = path
+                    )
+                )
+            }
+        }
+
+        mediaItems // Trả về list đã quét
     }
 
-    suspend fun refreshMediaItem(mediaId: String): MediaItem? = withContext(dispatcher) {
-        // Implementation to refresh single item
-        null
+    // Hàm refresh một MediaItem cụ thể (dựa trên ID và type)
+    suspend fun refreshMediaItem(itemId: Long, type: MediaType): MediaItem? = withContext(dispatcher) {
+        val contentResolver: ContentResolver = context.contentResolver
+        val uri = if (type == MediaType.AUDIO) MediaStore.Audio.Media.EXTERNAL_CONTENT_URI else MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.MediaColumns.DURATION,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.MediaColumns.DATE_ADDED,
+            MediaStore.MediaColumns.DATE_MODIFIED,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.DATA
+        )
+
+        contentResolver.query(
+            uri,
+            projection,
+            "${MediaStore.MediaColumns._ID} = ?",
+            arrayOf(itemId.toString()),
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))
+                val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)) ?: ""
+                val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE))
+                val artist = if (type == MediaType.AUDIO) (cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)) ?: "") else ""
+                val album = if (type == MediaType.AUDIO) (cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)) ?: "") else ""
+                val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION))
+                val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+                val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED))
+                val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED))
+                val mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
+                val path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                val uriString = path ?: "" // Hoặc build uri string nếu cần
+
+                return@withContext MediaItem(
+                    id = id.toString(),
+                    uri = uriString,
+                    displayName = displayName,
+                    title = title,
+                    artist = artist,
+                    album = album,
+                    duration = duration,
+                    size = size,
+                    dateAdded = dateAdded,
+                    dateModified = dateModified,
+                    mimeType = mimeType,
+                    albumArtUri = null, // TODO: Query album art
+                    track = null,
+                    year = null,
+                    genre = null,
+                    bitrate = null,
+                    sampleRate = null,
+                    type = type,
+                    path = path
+                )
+            }
+        }
+        null // Nếu không tìm thấy
     }
 
     private val contentResolver: ContentResolver = context.contentResolver
