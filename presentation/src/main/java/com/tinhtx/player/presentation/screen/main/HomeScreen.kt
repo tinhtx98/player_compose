@@ -21,10 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.tinhtx.player.common.Resource
+import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.presentation.component.common.MediaItemCard
 import com.tinhtx.player.presentation.component.common.SearchBar
 import com.tinhtx.player.presentation.animation.WaterDropAnimation

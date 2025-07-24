@@ -1,9 +1,6 @@
 // presentation/src/main/kotlin/com/tinhtx/player/screen/search/SearchScreen.kt
 package com.tinhtx.player.presentation.screen.search
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.tinhtx.player.common.Resource
+import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.domain.model.MediaType
 import com.tinhtx.player.presentation.animation.FallingLeavesAnimation
 import com.tinhtx.player.presentation.animation.WaterDropAnimation

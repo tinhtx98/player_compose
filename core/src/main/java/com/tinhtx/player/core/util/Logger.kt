@@ -1,5 +1,5 @@
 // core/src/main/kotlin/com/tinhtx/player/util/Logger.kt
-package com.tinhtx.player.util
+package com.tinhtx.player.core.util
 
 import android.util.Log
 

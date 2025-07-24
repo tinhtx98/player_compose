@@ -3,7 +3,7 @@ package com.tinhtx.player.presentation.screen.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tinhtx.player.common.Resource
+import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.domain.model.AnimationIntensity
 import com.tinhtx.player.domain.model.EqualizerSettings
 import com.tinhtx.player.domain.model.MediaItem
@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn

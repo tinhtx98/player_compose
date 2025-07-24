@@ -1,5 +1,5 @@
 // core/src/main/kotlin/com/tinhtx/player/common/Extensions.kt
-package com.tinhtx.player.common
+package com.tinhtx.player.core.common
 
 import java.util.concurrent.TimeUnit
 

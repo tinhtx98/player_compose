@@ -1,5 +1,5 @@
 // core/src/main/kotlin/com/tinhtx/player/common/Resource.kt
-package com.tinhtx.player.common
+package com.tinhtx.player.core.common
 
 sealed class Resource<T>(val data: T? = null, val message: String? = null) {
     class Success<T>(data: T) : Resource<T>(data)

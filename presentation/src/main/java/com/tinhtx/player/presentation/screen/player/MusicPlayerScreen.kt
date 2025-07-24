@@ -2,8 +2,6 @@
 package com.tinhtx.player.presentation.screen.player
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -54,7 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.tinhtx.player.common.formatAsDuration
+import com.tinhtx.player.core.common.formatAsDuration
 import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
 import com.tinhtx.player.presentation.animation.WaterDropAnimation
 

@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.tinhtx.player.core.navigation.AppNavigation
+import com.tinhtx.player.presentation.navigation.AppNavigation
 import com.tinhtx.player.presentation.theme.TinhTXTheme
 import dagger.hilt.android.AndroidEntryPoint
 

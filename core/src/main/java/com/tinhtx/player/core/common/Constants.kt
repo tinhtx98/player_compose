@@ -1,5 +1,5 @@
 // core/src/main/kotlin/com/tinhtx/player/common/Constants.kt
-package com.tinhtx.player.common
+package com.tinhtx.player.core.common
 
 object Constants {
     const val ANIMATION_DURATION_SHORT = 200L

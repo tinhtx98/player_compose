@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":data"))
+    implementation(project(":media"))
     // Core Android
     implementation(libs.androidx.core.ktx)
 

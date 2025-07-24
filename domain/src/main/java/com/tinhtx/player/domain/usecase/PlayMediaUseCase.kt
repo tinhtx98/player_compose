@@ -13,11 +13,11 @@ class PlayMediaUseCase @Inject constructor(
     private val exoPlayerManager: ExoPlayerManager
 ) {
     fun playMediaItem(mediaItem: MediaItem) {
-        // Implementation to play a single media item
+        exoPlayerManager.playMediaItem(mediaItem)
     }
 
     fun playMediaItems(mediaItems: List<MediaItem>, startIndex: Int = 0) {
-        // Implementation to play a list of media items
+        exoPlayerManager.playMediaItems(mediaItems, startIndex)
     }
 
     fun pause() {

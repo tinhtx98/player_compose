@@ -1,5 +1,5 @@
 // core/src/main/kotlin/com/tinhtx/player/util/PermissionUtils.kt
-package com.tinhtx.player.util
+package com.tinhtx.player.core.util
 
 import android.content.Context
 import android.content.pm.PackageManager

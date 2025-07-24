@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -69,7 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.tinhtx.player.R
-import com.tinhtx.player.common.Resource
+import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.domain.model.AlbumInfo
 import com.tinhtx.player.domain.model.ArtistInfo
 import com.tinhtx.player.domain.model.PlaylistInfo
