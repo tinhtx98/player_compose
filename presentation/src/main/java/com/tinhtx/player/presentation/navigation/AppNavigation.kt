@@ -144,10 +144,7 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
                 val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
                 MusicPlayerScreen(
                     mediaId = mediaId,
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToVideoPlayer = { videoId ->
-                        navController.navigate("${Screen.VideoPlayer.route.substringBefore("/{mediaId}")}/$videoId")
-                    })
+                    onNavigateBack = { navController.popBackStack() })
             }
 
             composable(

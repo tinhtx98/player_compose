@@ -10,7 +10,7 @@ import androidx.compose.animation.core.RepeatMode as AnimationRepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -48,7 +47,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,24 +66,20 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.tinhtx.player.core.common.formatAsDuration
 import com.tinhtx.player.domain.model.RepeatMode as PlaybackRepeatMode
 import com.tinhtx.player.domain.model.ShuffleMode
 import com.tinhtx.player.presentation.R
-import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
-import com.tinhtx.player.presentation.component.media.EqualizerBottomSheet
-import com.tinhtx.player.presentation.component.media.LyricsPanel
-import com.tinhtx.player.presentation.component.media.EqualizerBottomSheetContent
+import com.tinhtx.player.presentation.component.media.*
 import com.tinhtx.player.presentation.component.animation.FallingLeavesAnimation
 import com.tinhtx.player.presentation.component.animation.WaterWaveAnimation
+import com.tinhtx.player.presentation.component.animation.FlowerBloomAnimation
+import java.util.Locale
 
-// presentation/screen/player/MusicPlayerScreen.kt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MusicPlayerScreen(
     mediaId: String,
     onNavigateBack: () -> Unit,
-    onNavigateToVideoPlayer: (String) -> Unit,
     viewModel: MusicPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -149,7 +143,7 @@ fun MusicPlayerScreen(
                 ) {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
@@ -324,7 +318,7 @@ fun MusicPlayerScreen(
                             transitionSpec = {
                                 scaleIn(
                                     animationSpec = tween(150, easing = FastOutSlowInEasing)
-                                ) with scaleOut(
+                                ) togetherWith scaleOut(
                                     animationSpec = tween(150, easing = FastOutSlowInEasing)
                                 )
                             },
@@ -385,11 +379,17 @@ fun MusicPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { showLyrics = !showLyrics }) {
+                IconButton(
+                    onClick = { showLyrics = !showLyrics },
+                    enabled = !uiState.lyrics.isNullOrBlank()
+                ) {
                     Icon(
                         Icons.Default.Lyrics,
                         contentDescription = "Lyrics",
-                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        tint = if (!uiState.lyrics.isNullOrBlank())
+                            MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        else
+                            MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
                     )
                 }
 
@@ -416,7 +416,23 @@ fun MusicPlayerScreen(
             visible = true,
             onDismiss = { showEqualizer = false }
         ) {
-            // Content của bottom sheet sẽ được render bên trong component
+            // Equalizer content
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Equalizer",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                // Add equalizer controls here
+                Text(
+                    text = "Equalizer controls will be implemented here",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 
@@ -426,7 +442,7 @@ fun MusicPlayerScreen(
             visible = true,
             onDismiss = { showLyrics = false },
             currentPosition = playbackState.playbackPosition,
-            lyrics = uiState.lyrics ?: ""
+            lyrics = uiState.lyrics
         )
     }
 }
@@ -438,8 +454,8 @@ private fun formatTime(milliseconds: Long): String {
     val hours = (milliseconds / (1000 * 60 * 60)) % 24
 
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 }
