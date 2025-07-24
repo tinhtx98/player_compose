@@ -13,6 +13,7 @@ import com.tinhtx.player.data.repository.MediaRepositoryImpl
 import com.tinhtx.player.data.repository.PlaylistRepositoryImpl
 import com.tinhtx.player.domain.repository.MediaRepository
 import com.tinhtx.player.domain.repository.PlaylistRepository
+import com.tinhtx.player.domain.repository.PlaybackManager
 import com.tinhtx.player.media.equalizer.EqualizerManager
 import com.tinhtx.player.media.playback.ExoPlayerManager
 import com.tinhtx.player.media.playback.MediaNotificationManager
@@ -28,14 +29,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MediaModule {
-
-    @Provides
-    @Singleton
-    fun provideExoPlayer(
-        @ApplicationContext context: Context
-    ): ExoPlayer {
-        return ExoPlayer.Builder(context).build()
-    }
 
     @Provides
     @Singleton
@@ -96,5 +89,13 @@ object MediaModule {
         @DataIoDispatcher dispatcher: CoroutineDispatcher
     ): PlaylistRepository {
         return PlaylistRepositoryImpl(playlistDao, dispatcher)
+    }
+
+    @Provides
+    @Singleton
+    fun providePlaybackManager(
+        exoPlayerManager: ExoPlayerManager
+    ): PlaybackManager {
+        return exoPlayerManager
     }
 }
