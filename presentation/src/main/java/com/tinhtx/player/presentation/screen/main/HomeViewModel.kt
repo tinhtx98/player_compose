@@ -4,6 +4,7 @@ package com.tinhtx.player.presentation.screen.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tinhtx.player.core.common.Resource
+import com.tinhtx.player.data.local.preferences.UserPreferencesManager
 import com.tinhtx.player.domain.model.AnimationIntensity
 import com.tinhtx.player.domain.model.EqualizerSettings
 import com.tinhtx.player.domain.model.MediaItem
