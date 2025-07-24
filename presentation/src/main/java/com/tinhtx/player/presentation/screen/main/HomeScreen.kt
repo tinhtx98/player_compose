@@ -36,6 +36,7 @@ fun HomeScreen(
     permissionsGranted: Boolean,
     onNavigateToSearch: () -> Unit,
     onNavigateToPlayer: (String) -> Unit,
+    onNavigateToVideoPlayer: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -110,7 +111,17 @@ fun HomeScreen(
                         ) {
                             MediaItemCard(
                                 mediaItem = mediaItem,
-                                onClick = { onNavigateToPlayer(mediaItem.id) },
+                                onClick = {
+                                    // Navigate theo type của media
+                                    when (mediaItem.type) {
+                                        com.tinhtx.player.domain.model.MediaType.AUDIO -> {
+                                            onNavigateToPlayer(mediaItem.id)
+                                        }
+                                        com.tinhtx.player.domain.model.MediaType.VIDEO -> {
+                                            onNavigateToVideoPlayer(mediaItem.id)
+                                        }
+                                    }
+                                },
                                 onFavoriteClick = { viewModel.onToggleFavorite(mediaItem.id) },
                                 onMoreClick = { viewModel.onShowMediaOptions(mediaItem.id) },
                                 ageGroup = userPreferences.ageGroup

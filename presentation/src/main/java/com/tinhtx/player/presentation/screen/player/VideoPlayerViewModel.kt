@@ -3,6 +3,7 @@ package com.tinhtx.player.presentation.screen.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.exoplayer.ExoPlayer
 import com.tinhtx.player.domain.model.MediaItem
 import com.tinhtx.player.domain.model.PlaybackState
 import com.tinhtx.player.domain.usecase.GetMediaItemsUseCase
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
     private val getMediaItemsUseCase: GetMediaItemsUseCase,
-    private val playMediaUseCase: PlayMediaUseCase
+    private val playMediaUseCase: PlayMediaUseCase,
+    val exoPlayer: ExoPlayer
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(VideoPlayerUiState())
@@ -28,8 +30,17 @@ class VideoPlayerViewModel @Inject constructor(
 
     fun loadVideoItem(mediaId: String) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
             getMediaItemsUseCase.getMediaItemById(mediaId).collect { mediaItem ->
-                _uiState.value = _uiState.value.copy(currentMediaItem = mediaItem)
+                if (mediaItem != null) {
+                    _uiState.value = _uiState.value.copy(
+                        currentMediaItem = mediaItem,
+                        isLoading = false
+                    )
+                    playMediaUseCase.playMediaItem(mediaItem)
+                    _playbackState.value = _playbackState.value.copy(isPlaying = true)
+                }
             }
         }
     }
@@ -42,8 +53,24 @@ class VideoPlayerViewModel @Inject constructor(
         }
         _playbackState.value = _playbackState.value.copy(isPlaying = !playbackState.value.isPlaying)
     }
+
+    fun seekTo(position: Long) {
+        exoPlayer.seekTo(position)
+        _playbackState.value = _playbackState.value.copy(playbackPosition = position)
+    }
+
+    fun toggleFullscreen() {
+        // This would be handled by the UI layer
+        // ExoPlayer doesn't directly handle fullscreen, it's a UI concern
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        exoPlayer.release()
+    }
 }
 
 data class VideoPlayerUiState(
-    val currentMediaItem: MediaItem? = null
+    val currentMediaItem: MediaItem? = null,
+    val isLoading: Boolean = false
 )

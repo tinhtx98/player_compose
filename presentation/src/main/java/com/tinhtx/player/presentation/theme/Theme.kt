@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.tinhtx.player.core.util.SystemBarsController
 import com.tinhtx.player.domain.model.AgeGroup
 import com.tinhtx.player.domain.model.ThemeMode
 
@@ -44,18 +45,12 @@ fun TinhTXTheme(
         else -> getColorSchemeForAgeGroup(ageGroup, darkTheme)
     }
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = !darkTheme
-                isAppearanceLightNavigationBars = !darkTheme
-            }
-        }
-    }
+    SystemBarsController(
+        statusBarColor = colorScheme.primary,
+        navigationBarColor = colorScheme.background,
+        isAppearanceLightStatusBars = !darkTheme,  // Dark icons if light theme
+        isAppearanceLightNavigationBars = !darkTheme
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,

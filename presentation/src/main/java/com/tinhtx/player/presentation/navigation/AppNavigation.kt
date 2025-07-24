@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Collections
@@ -64,36 +65,42 @@ fun AppNavigation() {
 @Composable
 private fun AppNavigationContent(permissionsGranted: Boolean) {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Ẩn nav bar khi ở VideoPlayerScreen
+    val showBottomBar = currentRoute != Screen.VideoPlayer.route
 
     Scaffold(
         bottomBar = {
-            // Thêm Bottom Navigation Bar
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
+            if (showBottomBar) {
+                // Thêm Bottom Navigation Bar
+                NavigationBar {
+                    val currentDestination = navBackStackEntry?.destination
 
-                navItems.forEach { item ->
-                    NavigationBarItem(
-                        icon = item.icon,
-                        label = { Text(item.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                // Logic để tránh stack chồng (single top)
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                    navItems.forEach { item ->
+                        NavigationBarItem(
+                            icon = item.icon,
+                            label = { Text(item.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    // Logic để tránh stack chồng (single top)
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        })
+                            })
+                    }
                 }
             }
         }) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = if (showBottomBar) Modifier.padding(innerPadding) else Modifier.fillMaxSize()
         ) {
             composable(
                 route = Screen.Home.route,
@@ -105,7 +112,11 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
                     onNavigateToPlayer = { mediaId ->
                         // UPDATE: Sử dụng string template để navigate, fix argument mismatch (Screen.MusicPlayer là object, route là string const)
                         navController.navigate("${Screen.MusicPlayer.route.substringBefore("/{mediaId}")}/$mediaId")
-                    })
+                    },
+                    onNavigateToVideoPlayer = { mediaId ->
+                        navController.navigate("${Screen.VideoPlayer.route.substringBefore("/{mediaId}")}/$mediaId")
+                    }
+                )
             }
 
             composable(

@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,10 +49,14 @@ class MusicPlayerViewModel @Inject constructor(
     )
     val userPreferences: StateFlow<UserPreferences> = _userPreferences.asStateFlow()
 
-    fun loadMediaItem(mediaId: String) {
+    fun loadAndPlayMediaItem(mediaId: String) {
         viewModelScope.launch {
             getMediaItemsUseCase.getMediaItemById(mediaId).collect { mediaItem ->
-                _uiState.value = _uiState.value.copy(currentMediaItem = mediaItem)
+                if (mediaItem != null) {
+                    _uiState.value = _uiState.value.copy(currentMediaItem = mediaItem)
+                    playMediaUseCase.playMediaItem(mediaItem)
+                    _playbackState.value = _playbackState.value.copy(isPlaying = true)
+                }
             }
         }
     }

@@ -15,8 +15,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 fun SystemBarsController(
     statusBarColor: Color,
     navigationBarColor: Color,
-    isAppearanceLightStatusBars: Boolean,
-    isAppearanceLightNavigationBars: Boolean,
+    isAppearanceLightStatusBars: Boolean = true,  // True for dark icons on light background
+    isAppearanceLightNavigationBars: Boolean = true,
     isStatusBarVisible: Boolean = true,
     isNavigationBarVisible: Boolean = true
 ) {
@@ -25,8 +25,8 @@ fun SystemBarsController(
         SideEffect {
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
-            //window.statusBarColor = statusBarColor.toArgb()
-            //window.navigationBarColor = navigationBarColor.toArgb()
+            window.statusBarColor = statusBarColor.toArgb()
+            window.navigationBarColor = navigationBarColor.toArgb()
 
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = isAppearanceLightStatusBars

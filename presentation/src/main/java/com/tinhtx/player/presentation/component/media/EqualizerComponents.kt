@@ -113,31 +113,44 @@ fun EqualizerBottomSheetContent(
 }
 
 @Composable
-fun EqualizerBandSlider(
+private fun EqualizerBandSlider(
     band: FrequencyBand,
     onValueChange: (Float) -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(48.dp)
+        modifier = Modifier.width(40.dp)
     ) {
         Text(
-            text = "${band.centerFrequency}Hz",
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center
+            text = formatFrequency(band.centerFrequency),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            fontSize = 10.sp
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Slider(
             value = band.currentLevel.toFloat(),
             onValueChange = onValueChange,
             valueRange = band.minLevel.toFloat()..band.maxLevel.toFloat(),
-            modifier = Modifier.height(120.dp)
+            modifier = Modifier.height(200.dp)
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "${band.currentLevel}dB",
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center
+            text = "${band.currentLevel / 100}dB",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            fontSize = 10.sp
         )
+    }
+}
+
+private fun formatFrequency(frequency: Int): String {
+    return when {
+        frequency < 1000 -> "${frequency}Hz"
+        else -> "${frequency / 1000}kHz"
     }
 }
