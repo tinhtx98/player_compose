@@ -72,16 +72,14 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(albumsResource = Resource.Loading())
 
-            getMediaItemsUseCase.getAlbums()
-                .map { albums ->
-                    // Apply sorting based on user preferences
+            try {
+                getMediaItemsUseCase.getAlbums().collect { albums ->
                     val sortedAlbums = sortAlbums(albums, userPreferences.value.uiSettings.sortBy, userPreferences.value.uiSettings.sortOrder)
-                    Resource.Success(sortedAlbums)
+                    _uiState.value = _uiState.value.copy(albumsResource = Resource.Success(sortedAlbums))
                 }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi khi tải albums")) }
-                .collect { resource ->
-                    _uiState.value = _uiState.value.copy(albumsResource = resource)
-                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(albumsResource = Resource.Error(e.message ?: "Lỗi khi tải albums"))
+            }
         }
     }
 
@@ -89,15 +87,14 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(artistsResource = Resource.Loading())
 
-            getMediaItemsUseCase.getArtists()
-                .map { artists ->
+            try {
+                getMediaItemsUseCase.getArtists().collect { artists ->
                     val sortedArtists = sortArtists(artists, userPreferences.value.uiSettings.sortBy, userPreferences.value.uiSettings.sortOrder)
-                    Resource.Success(sortedArtists)
+                    _uiState.value = _uiState.value.copy(artistsResource = Resource.Success(sortedArtists))
                 }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi khi tải nghệ sĩ")) }
-                .collect { resource ->
-                    _uiState.value = _uiState.value.copy(artistsResource = resource)
-                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(artistsResource = Resource.Error(e.message ?: "Lỗi khi tải nghệ sĩ"))
+            }
         }
     }
 
@@ -105,14 +102,13 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(genresResource = Resource.Loading())
 
-            getMediaItemsUseCase.getGenres()
-                .map { genres ->
-                    Resource.Success(genres.sorted())
+            try {
+                getMediaItemsUseCase.getGenres().collect { genres ->
+                    _uiState.value = _uiState.value.copy(genresResource = Resource.Success(genres.sorted()))
                 }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi khi tải thể loại")) }
-                .collect { resource ->
-                    _uiState.value = _uiState.value.copy(genresResource = resource)
-                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(genresResource = Resource.Error(e.message ?: "Lỗi khi tải thể loại"))
+            }
         }
     }
 
@@ -120,15 +116,14 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(playlistsResource = Resource.Loading())
 
-            managePlaylistUseCase.getAllPlaylists()
-                .map { playlists ->
+            try {
+                managePlaylistUseCase.getAllPlaylists().collect { playlists ->
                     val sortedPlaylists = playlists.sortedByDescending { it.updatedAt }
-                    Resource.Success(sortedPlaylists)
+                    _uiState.value = _uiState.value.copy(playlistsResource = Resource.Success(sortedPlaylists))
                 }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi khi tải playlist")) }
-                .collect { resource ->
-                    _uiState.value = _uiState.value.copy(playlistsResource = resource)
-                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(playlistsResource = Resource.Error(e.message ?: "Lỗi khi tải playlist"))
+            }
         }
     }
 

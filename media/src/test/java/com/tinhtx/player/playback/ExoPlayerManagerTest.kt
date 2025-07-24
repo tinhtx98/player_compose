@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.junit.runner.RunWith
 import org.junit.Before
 import android.content.Context
+import com.tinhtx.player.media.playback.ExoPlayerManager
 
 @RunWith(MockitoJUnitRunner::class)
 class ExoPlayerManagerTest {

@@ -3,6 +3,8 @@ package com.tinhtx.player.presentation.screen.collection
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,16 +64,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.tinhtx.player.R
+import com.tinhtx.player.presentation.R
 import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.domain.model.AlbumInfo
 import com.tinhtx.player.domain.model.ArtistInfo
 import com.tinhtx.player.domain.model.PlaylistInfo
+import com.tinhtx.player.domain.model.UserPreferences
 import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
 import com.tinhtx.player.presentation.animation.WaterDropAnimation
 

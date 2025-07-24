@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tinhtx.player.domain.model.EqualizerPreset
@@ -28,6 +29,7 @@ import com.tinhtx.player.domain.model.FrequencyBand
 fun EqualizerBottomSheetContent(
     frequencyBands: List<FrequencyBand>,
     currentPreset: EqualizerPreset?,
+    presets: List<EqualizerPreset>,
     onApplyPreset: (EqualizerPreset) -> Unit,
     onSetBandLevel: (Int, Short) -> Unit,
     onSetBassBoost: (Short) -> Unit,
@@ -52,9 +54,10 @@ fun EqualizerBottomSheetContent(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(EqualizerPreset.values()) { preset ->
+            items(presets.size) { index ->
+                val preset = presets[index]
                 FilterChip(
-                    selected = currentPreset == preset,
+                    selected = currentPreset?.id == preset.id,
                     onClick = { onApplyPreset(preset) },
                     label = { Text(preset.displayName) }
                 )
@@ -67,11 +70,11 @@ fun EqualizerBottomSheetContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            frequencyBands.forEach { band ->
+            frequencyBands.forEachIndexed { index, band ->
                 EqualizerBandSlider(
                     band = band,
-                    onLevelChange = { level ->
-                        onSetBandLevel(band.index, level)
+                    onValueChange = { value ->
+                        onSetBandLevel(index, value.toInt().toShort())
                     }
                 )
             }
@@ -89,7 +92,7 @@ fun EqualizerBottomSheetContent(
                 Text("Bass Boost", fontWeight = FontWeight.Bold)
                 Slider(
                     value = bassBoostStrength.toFloat(),
-                    onValueChange = { onSetBassBoost(it.toShort()) },
+                    onValueChange = { onSetBassBoost(it.toInt().toShort()) },
                     valueRange = 0f..1000f,
                     modifier = Modifier.width(120.dp)
                 )
@@ -100,7 +103,7 @@ fun EqualizerBottomSheetContent(
                 Text("Virtualizer", fontWeight = FontWeight.Bold)
                 Slider(
                     value = virtualizerStrength.toFloat(),
-                    onValueChange = { onSetVirtualizer(it.toShort()) },
+                    onValueChange = { onSetVirtualizer(it.toInt().toShort()) },
                     valueRange = 0f..1000f,
                     modifier = Modifier.width(120.dp)
                 )
@@ -110,44 +113,31 @@ fun EqualizerBottomSheetContent(
 }
 
 @Composable
-private fun EqualizerBandSlider(
+fun EqualizerBandSlider(
     band: FrequencyBand,
-    onLevelChange: (Short) -> Unit
+    onValueChange: (Float) -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(40.dp)
+        modifier = Modifier.width(48.dp)
     ) {
         Text(
-            text = formatFrequency(band.centerFrequency),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            fontSize = 10.sp
+            text = "${band.centerFrequency}Hz",
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         Slider(
             value = band.currentLevel.toFloat(),
-            onValueChange = { onLevelChange(it.toShort()) },
+            onValueChange = onValueChange,
             valueRange = band.minLevel.toFloat()..band.maxLevel.toFloat(),
-            modifier = Modifier.height(200.dp)
+            modifier = Modifier.height(120.dp)
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "${band.currentLevel / 100}dB",
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            fontSize = 10.sp
+            text = "${band.currentLevel}dB",
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center
         )
-    }
-}
-
-private fun formatFrequency(frequency: Int): String {
-    return when {
-        frequency < 1000 -> "${frequency}Hz"
-        else -> "${frequency / 1000}kHz"
     }
 }

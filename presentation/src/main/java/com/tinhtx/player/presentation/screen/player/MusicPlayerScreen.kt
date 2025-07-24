@@ -9,6 +9,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,11 +28,21 @@ import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Lyrics
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -47,14 +58,21 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.tinhtx.player.core.common.formatAsDuration
-import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
-import com.tinhtx.player.presentation.animation.WaterDropAnimation
+import com.tinhtx.player.domain.model.RepeatMode
+import com.tinhtx.player.domain.model.ShuffleMode
+import com.tinhtx.player.presentation.R
+import com.tinhtx.player.presentation.component.media.EqualizerBottomSheet
+import com.tinhtx.player.presentation.component.media.LyricsPanel
+import com.tinhtx.player.presentation.component.media.EqualizerBottomSheetContent
+import com.tinhtx.player.presentation.component.animation.FallingLeavesAnimation
+import com.tinhtx.player.presentation.component.animation.WaterWaveAnimation
 
 @Composable
 fun MusicPlayerScreen(
@@ -75,7 +93,7 @@ fun MusicPlayerScreen(
         targetValue = if (playbackState.isPlaying) 360f else 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
         ),
         label = "Album Art Rotation"
     )
@@ -85,7 +103,7 @@ fun MusicPlayerScreen(
         targetValue = if (playbackState.isPlaying) 1.05f else 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
         ),
         label = "Pulse Scale"
     )
@@ -110,7 +128,7 @@ fun MusicPlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top Section
-            WaterDropAnimation(
+            WaterWaveAnimation(
                 visible = true,
                 ageGroup = userPreferences.ageGroup
             ) {
@@ -146,7 +164,7 @@ fun MusicPlayerScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Album Art
-            FlowerBloomAnimation(
+            FallingLeavesAnimation(
                 visible = uiState.currentMediaItem != null,
                 ageGroup = userPreferences.ageGroup
             ) {
@@ -182,7 +200,7 @@ fun MusicPlayerScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Track Info
-            WaterDropAnimation(
+            WaterWaveAnimation(
                 visible = uiState.currentMediaItem != null,
                 ageGroup = userPreferences.ageGroup
             ) {
@@ -385,17 +403,31 @@ fun MusicPlayerScreen(
     // Equalizer Bottom Sheet
     if (showEqualizer) {
         EqualizerBottomSheet(
-            onDismiss = { showEqualizer = false },
-            viewModel = viewModel
-        )
+            visible = showEqualizer,
+            onDismiss = { showEqualizer = false }
+        ) {
+            // Add equalizer content here
+            EqualizerBottomSheetContent(
+                frequencyBands = emptyList(), // Replace with actual data from viewModel
+                currentPreset = null,
+                presets = emptyList(),
+                onApplyPreset = { },
+                onSetBandLevel = { _, _ -> },
+                onSetBassBoost = { },
+                onSetVirtualizer = { },
+                bassBoostStrength = 0,
+                virtualizerStrength = 0
+            )
+        }
     }
 
     // Lyrics Panel
     if (showLyrics) {
         LyricsPanel(
-            onDismiss = { showLyrics = false },
+            visible = showLyrics,
+            lyrics = uiState.lyrics,
             currentPosition = playbackState.playbackPosition,
-            lyrics = uiState.lyrics
+            onDismiss = { showLyrics = false }
         )
     }
 }

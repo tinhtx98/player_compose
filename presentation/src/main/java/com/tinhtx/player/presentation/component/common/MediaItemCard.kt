@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.tinhtx.player.R
+import com.tinhtx.player.presentation.R
 import com.tinhtx.player.domain.model.AgeGroup
 import com.tinhtx.player.domain.model.MediaItem
 

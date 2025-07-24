@@ -7,7 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import com.tinhtx.player.R
+import com.tinhtx.player.feature.R
 
 class MediaWidget : AppWidgetProvider() {
 

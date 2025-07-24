@@ -60,14 +60,15 @@ class SearchViewModel @Inject constructor(
 
     init {
         // Auto search with debounce
-        searchQueryFlow
-            .debounce(300)
-            .distinctUntilChanged()
-            .filter { it.isNotEmpty() }
-            .map { query ->
-                performSearchInternal(query)
-            }
-            .collect { }
+        viewModelScope.launch {
+            searchQueryFlow
+                .debounce(300)
+                .distinctUntilChanged()
+                .filter { it.isNotEmpty() }
+                .collect { query ->
+                    performSearchInternal(query)
+                }
+        }
     }
 
     fun onSearchQueryChange(query: String) {
@@ -96,19 +97,14 @@ class SearchViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(searchResults = Resource.Loading())
 
         try {
-            getMediaItemsUseCase.searchMediaItems(query)
-                .map { items ->
-                    // Apply filter if selected
-                    val filteredItems = _uiState.value.selectedFilter?.let { filter ->
-                        items.filter { it.type == filter }
-                    } ?: items
+            getMediaItemsUseCase.searchMediaItems(query).collect { items ->
+                // Apply filter if selected
+                val filteredItems = _uiState.value.selectedFilter?.let { filter ->
+                    items.filter { it.type == filter }
+                } ?: items
 
-                    Resource.Success(filteredItems)
-                }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi tìm kiếm")) }
-                .collect { resource ->
-                    _uiState.value = _uiState.value.copy(searchResults = resource)
-                }
+                _uiState.value = _uiState.value.copy(searchResults = Resource.Success(filteredItems))
+            }
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
                 searchResults = Resource.Error(e.message ?: "Lỗi không xác định")

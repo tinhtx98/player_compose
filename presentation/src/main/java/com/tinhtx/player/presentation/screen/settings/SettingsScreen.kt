@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -55,7 +57,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.tinhtx.player.core.common.formatAsFileSize
 import com.tinhtx.player.domain.model.AgeGroup
+import com.tinhtx.player.domain.model.PlaybackSettings
+import com.tinhtx.player.domain.model.PrivacySettings
 import com.tinhtx.player.domain.model.ThemeMode
 import com.tinhtx.player.presentation.animation.FlowerBloomAnimation
 import com.tinhtx.player.presentation.animation.WaterDropAnimation
@@ -451,7 +456,7 @@ private fun StorageSettingsContent(
     Column {
         ListItem(
             headlineContent = { Text("Bộ nhớ đệm") },
-            supportingContent = { Text("${cacheSize.formatAsFileSize()}") },
+            supportingContent = { Text(cacheSize.formatAsFileSize()) },
             trailingContent = {
                 Button(onClick = onClearCache) {
                     Text("Xóa")

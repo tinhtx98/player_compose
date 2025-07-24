@@ -6,9 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.tinhtx.player.data.local.preferences.UserPreferencesManager
 import com.tinhtx.player.domain.model.AgeGroup
 import com.tinhtx.player.domain.model.AnimationIntensity
+import com.tinhtx.player.domain.model.EqualizerSettings
+import com.tinhtx.player.domain.model.PackageInfo
+import com.tinhtx.player.domain.model.PlaybackSettings
+import com.tinhtx.player.domain.model.PrivacySettings
 import com.tinhtx.player.domain.model.SortBy
 import com.tinhtx.player.domain.model.SortOrder
 import com.tinhtx.player.domain.model.ThemeMode
+import com.tinhtx.player.domain.model.UiSettings
 import com.tinhtx.player.domain.model.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -210,10 +215,10 @@ class SettingsViewModel @Inject constructor(
     private suspend fun getApplicationPackageInfo(): PackageInfo {
         // Implementation to get package info
         // Return mock data for now
-        return PackageInfo().apply {
-            versionName = "1.0.0"
+        return PackageInfo(
+            versionName = "1.0.0",
             longVersionCode = 1L
-        }
+        )
     }
 
     private suspend fun calculateCacheSize(): Long {

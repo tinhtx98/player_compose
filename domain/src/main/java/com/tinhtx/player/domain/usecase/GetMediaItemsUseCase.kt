@@ -25,6 +25,9 @@ class GetMediaItemsUseCase @Inject constructor(
     fun getAlbums(): Flow<List<AlbumInfo>> = mediaRepository.getAlbums()
     fun getArtists(): Flow<List<ArtistInfo>> = mediaRepository.getArtists()
     fun getGenres(): Flow<List<String>> = mediaRepository.getGenres()
+    fun getMediaItemsByAlbum(albumId: String): Flow<List<MediaItem>> = mediaRepository.getMediaItemsByAlbum(albumId)
+    fun getMediaItemsByArtist(artistId: String): Flow<List<MediaItem>> = mediaRepository.getMediaItemsByArtist(artistId)
+    fun getMediaItemsByGenre(genre: String): Flow<List<MediaItem>> = mediaRepository.getMediaItemsByGenre(genre)
     fun getSortedMediaItems(sortBy: SortBy, sortOrder: SortOrder, type: MediaType?): Flow<List<MediaItem>> =
         mediaRepository.getSortedMediaItems(sortBy, sortOrder, type)
 }

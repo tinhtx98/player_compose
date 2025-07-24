@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":core"))
+    implementation(project(":media"))
 
     // Core Android
     implementation(libs.androidx.core.ktx)
@@ -76,8 +77,15 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.androidx.media3.ui)
     ksp(libs.hilt.compiler)
+
+    // Media3
+    implementation(libs.media3.ui)
+    implementation(libs.media3.common)
+    implementation(libs.media3.exoplayer)
+
+    // Permissions
+    implementation(libs.accompanist.permissions)
 
     // Image Loading
     implementation(libs.coil.compose)

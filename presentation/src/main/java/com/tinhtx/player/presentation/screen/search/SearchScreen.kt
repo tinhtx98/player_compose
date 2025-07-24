@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tinhtx.player.core.common.Resource
 import com.tinhtx.player.domain.model.MediaType
+import com.tinhtx.player.domain.model.UserPreferences
 import com.tinhtx.player.presentation.animation.FallingLeavesAnimation
 import com.tinhtx.player.presentation.animation.WaterDropAnimation
 import com.tinhtx.player.presentation.component.common.MediaItemCard

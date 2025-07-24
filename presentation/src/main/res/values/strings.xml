@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Player Compose</string>
+    <string name="home">Trang chủ</string>
+    <string name="collection">Bộ sưu tập</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="settings">Cài đặt</string>
+    <string name="player">Trình phát</string>
+    <string name="unknown">Không rõ</string>
+    <string name="play">Phát</string>
+    <string name="pause">Tạm dừng</string>
+    <string name="next">Tiếp theo</string>
+    <string name="previous">Trước đó</string>
+    <string name="repeat">Lặp lại</string>
+    <string name="shuffle">Phát ngẫu nhiên</string>
+    <string name="favorite">Yêu thích</string>
+    <string name="playlist">Danh sách phát</string>
+    <string name="recent">Gần đây</string>
+    <string name="albums">Album</string>
+    <string name="artists">Nghệ sĩ</string>
+    <string name="genres">Thể loại</string>
+    <string name="equalizer">Bộ cân bằng âm</string>
+    <string name="lyrics">Lời bài hát</string>
+    <string name="video_player">Trình phát video</string>
+    <string name="music_player">Trình phát nhạc</string>
+    <string name="no_media_found">Không tìm thấy file media</string>
+    <string name="error_occurred">Đã xảy ra lỗi</string>
+    <string name="retry">Thử lại</string>
+    <string name="loading">Đang tải...</string>
+    <string name="permission_required">Cần quyền truy cập</string>
+    <string name="grant_permission">Cấp quyền</string>
+    <string name="storage_permission_rationale">Ứng dụng cần quyền truy cập bộ nhớ để phát nhạc</string>
+</resources>
+

@@ -2,6 +2,8 @@
 package com.tinhtx.player.di
 
 import android.content.Context
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
 import com.tinhtx.player.data.di.IoDispatcher as DataIoDispatcher
 import com.tinhtx.player.media.di.IoDispatcher as MediaIoDispatcher
 import com.tinhtx.player.data.local.database.dao.MediaDao
@@ -26,6 +28,23 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MediaModule {
+
+    @Provides
+    @Singleton
+    fun provideExoPlayer(
+        @ApplicationContext context: Context
+    ): ExoPlayer {
+        return ExoPlayer.Builder(context).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMediaSession(
+        @ApplicationContext context: Context,
+        exoPlayer: ExoPlayer
+    ): MediaSession {
+        return MediaSession.Builder(context, exoPlayer).build()
+    }
 
     @Provides
     @Singleton
@@ -56,11 +75,8 @@ object MediaModule {
 
     @Provides
     @Singleton
-    fun provideEqualizerManager(
-        @ApplicationContext context: Context,
-        userPreferencesManager: UserPreferencesManager
-    ): EqualizerManager {
-        return EqualizerManager(context, userPreferencesManager)
+    fun provideEqualizerManager(): EqualizerManager {
+        return EqualizerManager()
     }
 
     @Provides

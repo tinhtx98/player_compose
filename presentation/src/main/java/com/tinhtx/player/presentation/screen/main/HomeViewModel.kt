@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -100,14 +99,17 @@ class HomeViewModel @Inject constructor(
 
     private fun loadMediaItems() {
         viewModelScope.launch {
-            getMediaItemsUseCase.getAllMediaItems()
-                .map { Resource.Success(it) }
-                .catch { emit(Resource.Error(it.message ?: "Lỗi không xác định")) }
-                .collect { resource ->
+            try {
+                getMediaItemsUseCase.getAllMediaItems().collect { mediaItems ->
                     _uiState.value = _uiState.value.copy(
-                        mediaItemsResource = resource
+                        mediaItemsResource = Resource.Success(mediaItems)
                     )
                 }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    mediaItemsResource = Resource.Error(e.message ?: "Lỗi không xác định")
+                )
+            }
         }
     }
 
@@ -169,10 +171,10 @@ class HomeViewModel @Inject constructor(
 data class HomeUiState(
     val mediaItemsResource: Resource<List<MediaItem>> = Resource.Loading(),
     val searchQuery: String = "",
-    favoriteCount: Int = 0,
-    recentCount: Int = 0,
-    playlistCount: Int = 0,
-    selectedMediaId: String? = null,
-    showMediaOptions: Boolean = false,
-    isRefreshing: Boolean = false
+    val favoriteCount: Int = 0,
+    val recentCount: Int = 0,
+    val playlistCount: Int = 0,
+    val selectedMediaId: String? = null,
+    val showMediaOptions: Boolean = false,
+    val isRefreshing: Boolean = false
 )
