@@ -90,21 +90,40 @@ class MusicPlayerViewModel @Inject constructor(
             try {
                 getMediaItemsUseCase.getMediaItemById(mediaId).collect { mediaItem ->
                     if (mediaItem != null) {
+                        val currentState = _playbackState.value
+                        val currentItem = _uiState.value.currentMediaItem
+
+                        // Cập nhật UI state trước
                         val lyrics = extractLyricsFromAudioFile(mediaItem)
                         _uiState.value = _uiState.value.copy(
                             currentMediaItem = mediaItem,
                             lyrics = lyrics
                         )
-                        playMediaUseCase.playMediaItem(mediaItem)
+
+                        // CHỈ play nếu đây là bài hát khác hoặc chưa có bài hát nào đang phát
+                        if (currentItem == null || currentItem.id != mediaId) {
+                            println("DEBUG: Playing new media - currentItem: ${currentItem?.id}, requested: $mediaId")
+                            playMediaUseCase.playMediaItem(mediaItem)
+
+                            _playbackState.value = _playbackState.value.copy(
+                                currentItem = mediaItem,
+                                isPlaying = true,
+                                duration = 240000L, // 4 minutes sample duration
+                                playbackPosition = 0L
+                            )
+                        } else {
+                            println("DEBUG: Media already playing - currentItem: ${currentItem.id}, requested: $mediaId")
+                            // Nếu bài hát đã đang phát, chỉ cập nhật UI mà không restart playback
+                            _playbackState.value = _playbackState.value.copy(
+                                currentItem = mediaItem
+                            )
+                        }
 
                         // Start PlaybackService to show notification
                         startPlaybackService()
 
-                        _playbackState.value = _playbackState.value.copy(
-                            isPlaying = true,
-                            duration = 240000L, // 4 minutes sample duration
-                            playbackPosition = 0L
-                        )
+                        // Broadcast state cho MiniPlayerBar
+                        broadcastPlaybackState()
                     }
                 }
             } catch (_: Exception) {
@@ -150,10 +169,14 @@ class MusicPlayerViewModel @Inject constructor(
         startPlaybackService()
 
         _playbackState.value = _playbackState.value.copy(
+            currentItem = sampleMediaItem,
             isPlaying = true,
             duration = 240000L,
             playbackPosition = 0L
         )
+
+        // QUAN TRỌNG: Broadcast state cho MiniPlayerBar
+        broadcastPlaybackState()
     }
 
     private fun startPlaybackService() {
@@ -163,6 +186,25 @@ class MusicPlayerViewModel @Inject constructor(
         } catch (e: Exception) {
             // Handle service start error
         }
+    }
+
+    private fun broadcastPlaybackState() {
+        // Broadcast state để MiniPlayerBar có thể nhận được
+        val intent = Intent("PLAYBACK_STATE_UPDATE")
+        val currentItem = _uiState.value.currentMediaItem
+        val playbackState = _playbackState.value
+
+        intent.putExtra("isPlaying", playbackState.isPlaying)
+        intent.putExtra("mediaId", currentItem?.id ?: "")
+        intent.putExtra("title", currentItem?.title ?: "")
+        intent.putExtra("artist", currentItem?.artist ?: "")
+        intent.putExtra("albumArtUri", currentItem?.albumArtUri ?: "")
+        intent.putExtra("position", playbackState.playbackPosition)
+        intent.putExtra("duration", playbackState.duration)
+        intent.putExtra("progress", playbackState.progress)
+
+        println("DEBUG: Broadcasting playback state - mediaId: ${currentItem?.id}, title: ${currentItem?.title}, isPlaying: ${playbackState.isPlaying}")
+        context.sendBroadcast(intent)
     }
 
     private fun extractLyricsFromAudioFile(mediaItem: MediaItem): String? {

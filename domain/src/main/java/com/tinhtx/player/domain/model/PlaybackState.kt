@@ -13,5 +13,6 @@ data class PlaybackState(
     val queue: List<MediaItem> = emptyList(),
     val currentIndex: Int = 0,
     val bufferedPosition: Long = 0L,
-    val playbackError: String? = null
+    val playbackError: String? = null,
+    val progress: Float = 0f
 )

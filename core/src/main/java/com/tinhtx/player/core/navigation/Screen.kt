@@ -23,12 +23,16 @@ sealed class Screen(
         arguments = listOf(
             navArgument("mediaId") { type = NavType.StringType }
         )
-    )
+    ) {
+        fun createRoute(mediaId: String) = "music_player/$mediaId"
+    }
 
     object VideoPlayer : Screen(  // UPDATE: Tương tự, thay data class thành object
         route = "video_player/{mediaId}",
         arguments = listOf(
             navArgument("mediaId") { type = NavType.StringType }
         )
-    )
+    ) {
+        fun createRoute(mediaId: String) = "video_player/$mediaId"
+    }
 }

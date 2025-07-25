@@ -47,6 +47,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -109,7 +110,20 @@ fun MusicPlayerScreen(
     )
 
     LaunchedEffect(mediaId) {
-        viewModel.loadAndPlayMediaItem(mediaId)
+        // Kiểm tra kỹ hơn trước khi load và play
+        val currentState = viewModel.playbackState.value
+        val currentItem = currentState.currentItem
+
+        // Chỉ load nếu:
+        // 1. Chưa có currentItem, HOẶC
+        // 2. MediaId khác với currentItem.id
+        if (currentItem == null || currentItem.id != mediaId) {
+            println("DEBUG: Loading new media - currentItem: ${currentItem?.id}, requested: $mediaId")
+            viewModel.loadAndPlayMediaItem(mediaId)
+        } else {
+            println("DEBUG: Media already loaded - currentItem: ${currentItem.id}, requested: $mediaId")
+            // Nếu đã có media đúng rồi, chỉ cần ensure UI đồng bộ
+        }
     }
 
     Box(

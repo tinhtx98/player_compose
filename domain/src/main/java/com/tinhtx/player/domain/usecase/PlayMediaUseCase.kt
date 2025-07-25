@@ -28,6 +28,10 @@ class PlayMediaUseCase @Inject constructor(
         playbackManager.play()
     }
 
+    fun stop() {
+        playbackManager.stop()
+    }
+
     fun skipToNext() {
         playbackManager.seekToNext()
     }
