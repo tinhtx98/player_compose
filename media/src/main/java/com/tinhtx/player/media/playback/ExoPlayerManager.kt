@@ -1,7 +1,10 @@
 // media/src/main/kotlin/com/tinhtx/player/media/playback/ExoPlayerManager.kt
 package com.tinhtx.player.media.playback
 
+import android.net.Uri
 import androidx.media3.common.MediaItem as ExoMediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MediaMetadata.MEDIA_TYPE_MUSIC
 import androidx.media3.common.MediaMetadata.MEDIA_TYPE_VIDEO
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -98,7 +101,33 @@ class ExoPlayerManager @Inject constructor(
     }
 
     override fun setMediaItems(mediaItems: List<MediaItem>) {
-        exoPlayer.setMediaItems(mediaItems.map { ExoMediaItem.fromUri(it.uri) })
+        val exoMediaItems = mediaItems.map { domainMediaItem ->
+            ExoMediaItem.Builder()
+                .setUri(domainMediaItem.uri)
+                .setMediaId(domainMediaItem.id)
+                .setTag(domainMediaItem.id) // Lưu ID để có thể map ngược lại
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(domainMediaItem.title)
+                        .setArtist(domainMediaItem.artist)
+                        .setAlbumTitle(domainMediaItem.album)
+                        .setDisplayTitle(domainMediaItem.displayName)
+                        .setGenre(domainMediaItem.genre)
+                        .setTrackNumber(domainMediaItem.track)
+                        .setRecordingYear(domainMediaItem.year)
+                        .setArtworkUri(domainMediaItem.albumArtUri?.let { Uri.parse(it) })
+                        .setMediaType(
+                            when (domainMediaItem.type) {
+                                MediaType.VIDEO -> MEDIA_TYPE_VIDEO
+                                MediaType.AUDIO -> MEDIA_TYPE_MUSIC
+                            }
+                        )
+                        .build()
+                )
+                .build()
+        }
+
+        exoPlayer.setMediaItems(exoMediaItems)
         updatePlaybackState {
             it.copy(
                 queue = mediaItems,

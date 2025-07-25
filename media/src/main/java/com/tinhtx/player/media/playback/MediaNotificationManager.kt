@@ -11,6 +11,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerNotificationManager
 import com.tinhtx.player.core.common.Constants
@@ -18,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@UnstableApi
 @Singleton
 class MediaNotificationManager @Inject constructor(
     @ApplicationContext private val context: Context,
