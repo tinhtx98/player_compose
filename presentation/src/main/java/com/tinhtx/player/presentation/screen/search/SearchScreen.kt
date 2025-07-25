@@ -1,6 +1,7 @@
 // presentation/src/main/kotlin/com/tinhtx/player/screen/search/SearchScreen.kt
 package com.tinhtx.player.presentation.screen.search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -87,6 +89,20 @@ fun SearchScreen(
                 containerColor = MaterialTheme.colorScheme.surface
             )
         )*/
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(horizontal = 16.dp), contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                "Tìm kiếm",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
