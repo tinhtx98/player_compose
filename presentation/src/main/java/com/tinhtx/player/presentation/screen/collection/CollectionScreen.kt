@@ -102,91 +102,80 @@ fun CollectionScreen(
         selectedTabIndex = pagerState.currentPage
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Thư Viện") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Tìm kiếm")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
-        floatingActionButton = {
-            if (selectedTabIndex == 3) { // Playlists tab
-                FloatingActionButton(
-                    onClick = { viewModel.showCreatePlaylistDialog() },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Tạo playlist")
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Top Bar as composable - không dùng Scaffold
+        /*TopAppBar(
+            title = { Text("Thư Viện") },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
                 }
-            }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            },
+            actions = {
+                IconButton(onClick = { *//* Search *//* }) {
+                    Icon(Icons.Default.Search, contentDescription = "Tìm kiếm")
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        )*/
+
+        // Animated Tab Row
+        WaterDropAnimation(
+            visible = true,
+            ageGroup = userPreferences.ageGroup
         ) {
-            // Animated Tab Row
-            WaterDropAnimation(
-                visible = true,
-                ageGroup = userPreferences.ageGroup
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             ) {
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                ) {
-                    CollectionTab.values().forEachIndexed { index, tab ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            modifier = Modifier.animateContentSize()
+                CollectionTab.values().forEachIndexed { index, tab ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        modifier = Modifier.animateContentSize()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = tab.icon,
-                                    contentDescription = tab.title,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                            Icon(
+                                imageVector = tab.icon,
+                                contentDescription = tab.title,
+                                modifier = Modifier.size(20.dp)
+                            )
 
-                                Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                                Text(
-                                    text = tab.title,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = if (selectedTabIndex == index)
-                                        FontWeight.Bold
-                                    else
-                                        FontWeight.Normal
-                                )
-                            }
+                            Text(
+                                text = tab.title,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (selectedTabIndex == index)
+                                    FontWeight.Bold
+                                else
+                                    FontWeight.Normal
+                            )
                         }
                     }
                 }
             }
+        }
 
-            // Pager Content
+        // Pager Content với Box để handle FAB
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
@@ -215,6 +204,19 @@ fun CollectionScreen(
                         onCreatePlaylist = { viewModel.showCreatePlaylistDialog() },
                         userPreferences = userPreferences
                     )
+                }
+            }
+
+            // FAB positioned at bottom right - chỉ hiển thị ở tab Playlists
+            if (selectedTabIndex == 3) {
+                FloatingActionButton(
+                    onClick = { viewModel.showCreatePlaylistDialog() },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tạo playlist")
                 }
             }
         }

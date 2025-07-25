@@ -67,25 +67,29 @@ fun SearchScreen(
         viewModel.loadSearchHistory()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Tìm Kiếm") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Top Bar as composable - không dùng Scaffold
+        /*TopAppBar(
+            title = { Text("Tìm Kiếm") },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
+                }
+            },
+            actions = {
+                IconButton(onClick = { *//* Search *//* }) {
+                    Icon(Icons.Default.Search, contentDescription = "Tìm kiếm")
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface
             )
-        }
-    ) { paddingValues ->
+        )*/
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))

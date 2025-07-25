@@ -1,6 +1,7 @@
 // presentation/src/main/kotlin/com/tinhtx/player/screen/settings/SettingsScreen.kt
 package com.tinhtx.player.presentation.screen.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -52,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -74,25 +76,24 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val userPreferences by viewModel.userPreferences.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Cài Đặt") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Top Bar as composable - không dùng Scaffold
+        /*TopAppBar(
+            title = { Text("Cài Đặt") },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
-            )
-        }
-    ) { paddingValues ->
+            )*/
+        // Main content
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
