@@ -46,8 +46,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -126,6 +126,14 @@ fun MusicPlayerScreen(
         }
     }
 
+    // Đảm bảo broadcast state khi user navigate away khỏi MusicPlayerScreen
+    DisposableEffect(Unit) {
+        onDispose {
+            // Khi MusicPlayerScreen bị dispose, broadcast state để MiniPlayerBar có thể nhận được
+            viewModel.onNavigateAway()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -141,8 +149,7 @@ fun MusicPlayerScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top Bar with Back Button
@@ -189,17 +196,17 @@ fun MusicPlayerScreen(
                 Box(
                     modifier = Modifier
                         .size(320.dp)
-                        .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius))
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
-                                )
-                            )
-                        )
-                        .scale(pulseScale)
-                        .rotate(albumArtRotation),
+                        .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius)),
+                        // .background(
+                        //     brush = Brush.radialGradient(
+                        //         colors = listOf(
+                        //             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        //             MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
+                        //         )
+                        //     )
+                        // )
+                        //.scale(pulseScale)
+                        //.rotate(albumArtRotation),
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
@@ -209,8 +216,8 @@ fun MusicPlayerScreen(
                             .fillMaxSize()
                             .clip(RoundedCornerShape(userPreferences.ageGroup.cornerRadius)),
                         contentScale = ContentScale.Crop,
-                        error = painterResource(R.drawable.ic_music_note),
-                        placeholder = painterResource(R.drawable.ic_music_note)
+                        error = painterResource(R.drawable.ic_placeholder),
+                        placeholder = painterResource(R.drawable.ic_placeholder)
                     )
                 }
             }
@@ -252,7 +259,7 @@ fun MusicPlayerScreen(
                 visible = true,
                 ageGroup = userPreferences.ageGroup
             ) {
-                Column {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Slider(
                         value = playbackState.playbackPosition.toFloat(),
                         onValueChange = { viewModel.seekTo(it.toLong()) },

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tinhtx.player.domain.model.MediaItem
@@ -26,6 +27,9 @@ class PlaybackViewModel @Inject constructor(
 
     private val _playbackState = MutableStateFlow(PlaybackState())
     val playbackState = _playbackState.asStateFlow()
+
+    // Thêm flag để check xem đã init chưa
+    private var isInitialized = false
 
     private val stateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -84,21 +88,42 @@ class PlaybackViewModel @Inject constructor(
 
     init {
         println("DEBUG: PlaybackViewModel init - registering broadcast receiver")
+        registerBroadcastReceiver()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(
-                stateReceiver,
-                IntentFilter("PLAYBACK_STATE_UPDATE"),
-                Context.RECEIVER_NOT_EXPORTED
-            )
-        } else {
-            context.registerReceiver(
-                stateReceiver,
-                IntentFilter("PLAYBACK_STATE_UPDATE")
-            )
+        // Request current state nếu có MusicPlayerViewModel đang chạy
+        requestCurrentPlaybackState()
+
+        isInitialized = true
+        println("DEBUG: PlaybackViewModel initialized successfully")
+    }
+
+    private fun registerBroadcastReceiver() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(
+                    stateReceiver,
+                    IntentFilter("PLAYBACK_STATE_UPDATE"),
+                    Context.RECEIVER_NOT_EXPORTED
+                )
+            } else {
+                ContextCompat.registerReceiver(
+                    context,
+                    stateReceiver,
+                    IntentFilter("PLAYBACK_STATE_UPDATE"),
+                    ContextCompat.RECEIVER_NOT_EXPORTED
+                )
+            }
+            println("DEBUG: PlaybackViewModel broadcast receiver registered successfully")
+        } catch (e: Exception) {
+            println("DEBUG: Failed to register broadcast receiver: ${e.message}")
         }
+    }
 
-        println("DEBUG: PlaybackViewModel broadcast receiver registered successfully")
+    private fun requestCurrentPlaybackState() {
+        // Gửi broadcast để request current state từ MusicPlayerViewModel
+        val intent = Intent("REQUEST_PLAYBACK_STATE")
+        context.sendBroadcast(intent)
+        println("DEBUG: Requested current playback state")
     }
 
     fun play(mediaItem: MediaItem) {

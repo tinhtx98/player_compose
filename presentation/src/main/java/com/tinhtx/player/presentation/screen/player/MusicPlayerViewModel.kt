@@ -1,8 +1,11 @@
 // presentation/src/main/kotlin/com/tinhtx/player/screen/player/MusicPlayerViewModel.kt
 package com.tinhtx.player.presentation.screen.player
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tinhtx.player.domain.model.AgeGroup
@@ -56,9 +59,43 @@ class MusicPlayerViewModel @Inject constructor(
     )
     val userPreferences: StateFlow<UserPreferences> = _userPreferences.asStateFlow()
 
+    // Thêm broadcast receiver để respond lại request từ PlaybackViewModel
+    private val stateRequestReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "REQUEST_PLAYBACK_STATE" -> {
+                    println("DEBUG: MusicPlayerViewModel received request for current state")
+                    // Broadcast current state ngay lập tức
+                    broadcastCurrentPlaybackState()
+                }
+            }
+        }
+    }
+
     init {
         // Start updating playback position
         startPlaybackPositionUpdater()
+
+        // Đăng ký broadcast receiver để respond lại request
+        registerStateRequestReceiver()
+
+        // Đảm bảo broadcast state ngay khi ViewModel được khởi tạo
+        // để MiniPlayerBar có thể nhận được state hiện tại
+        broadcastCurrentPlaybackState()
+    }
+
+    private fun registerStateRequestReceiver() {
+        try {
+            val filter = IntentFilter("REQUEST_PLAYBACK_STATE")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(stateRequestReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                context.registerReceiver(stateRequestReceiver, filter)
+            }
+            println("DEBUG: MusicPlayerViewModel state request receiver registered")
+        } catch (e: Exception) {
+            println("DEBUG: Failed to register state request receiver: ${e.message}")
+        }
     }
 
     private fun startPlaybackPositionUpdater() {
@@ -207,6 +244,23 @@ class MusicPlayerViewModel @Inject constructor(
         context.sendBroadcast(intent)
     }
 
+    // Thêm method để broadcast state hiện tại
+    private fun broadcastCurrentPlaybackState() {
+        val currentItem = _uiState.value.currentMediaItem
+        val playbackState = _playbackState.value
+
+        // Chỉ broadcast nếu có currentItem
+        if (currentItem != null) {
+            broadcastPlaybackState()
+        }
+    }
+
+    // Thêm method để maintain state khi navigate away
+    fun onNavigateAway() {
+        // Đảm bảo broadcast state khi user navigate away khỏi MusicPlayerScreen
+        broadcastCurrentPlaybackState()
+    }
+
     private fun extractLyricsFromAudioFile(mediaItem: MediaItem): String? {
         return try {
             // Try to extract lyrics from audio file metadata
@@ -327,6 +381,15 @@ class MusicPlayerViewModel @Inject constructor(
                 playMediaUseCase.setFavorite(currentItem.id, updatedItem.isFavorite)
             }
         }
+    }
+
+    override fun onCleared() {
+        try {
+            context.unregisterReceiver(stateRequestReceiver)
+        } catch (e: Exception) {
+            println("DEBUG: Error unregistering state request receiver: ${e.message}")
+        }
+        super.onCleared()
     }
 }
 

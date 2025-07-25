@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Collections
@@ -24,7 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -38,13 +42,13 @@ import com.tinhtx.player.presentation.screen.collection.CollectionScreen
 import com.tinhtx.player.presentation.screen.main.HomeScreen
 import com.tinhtx.player.presentation.screen.player.MiniPlayerBar
 import com.tinhtx.player.presentation.screen.player.MusicPlayerScreen
+import com.tinhtx.player.presentation.screen.player.MusicPlayerViewModel
+import com.tinhtx.player.presentation.screen.player.PlaybackViewModel
 import com.tinhtx.player.presentation.screen.player.VideoPlayerScreen
 import com.tinhtx.player.presentation.screen.search.SearchScreen
 import com.tinhtx.player.presentation.screen.settings.SettingsScreen
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-data class NavItem(val route: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val label: String)
+data class NavItem(val route: String, val icon: ImageVector, val label: String)
 
 val navItems = listOf(
     NavItem(Screen.Home.route, Icons.Default.Home, "Home"),
@@ -74,10 +78,16 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
     val showBottomBar = currentRoute != Screen.VideoPlayer.route && currentRoute != Screen.MusicPlayer.route
 
     // Shared ViewModel cho toàn bộ app
-    val playbackViewModel: com.tinhtx.player.presentation.screen.player.PlaybackViewModel = hiltViewModel()
+    val playbackViewModel: PlaybackViewModel = hiltViewModel()
+    val musicPlayerViewModel: MusicPlayerViewModel = hiltViewModel()
 
     // Force initialize PlaybackViewModel ngay lập tức để đảm bảo broadcast receiver được register
-    playbackViewModel.playbackState.collectAsStateWithLifecycle()
+    val playbackState by playbackViewModel.playbackState.collectAsStateWithLifecycle()
+    val musicPlayerState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
+
+    // Kiểm tra xem có nên hiển thị MiniPlayerBar không
+    val shouldShowMiniPlayer =
+        showBottomBar && (playbackState.currentItem != null || musicPlayerState.currentItem != null)
 
     Scaffold(
         bottomBar = {
@@ -101,7 +111,11 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
         }) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             NavHost(
-                navController = navController, startDestination = Screen.Home.route, modifier = Modifier.fillMaxSize()
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = if (shouldShowMiniPlayer) 72.dp else 0.dp)
             ) {
                 animatedComposable(Screen.Home.route) {
                     HomeScreen(
@@ -131,9 +145,9 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
                     exitTransition = { fadeOut() }) { backStackEntry ->
                     val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
                     MusicPlayerScreen(
+                        viewModel = musicPlayerViewModel,
                         mediaId = mediaId,
-                        onNavigateBack = { navController.popBackStack() }
-                    )
+                        onNavigateBack = { navController.popBackStack() })
                 }
                 composable(
                     route = Screen.VideoPlayer.route,
@@ -149,21 +163,22 @@ private fun AppNavigationContent(permissionsGranted: Boolean) {
                 }
             }
             // Chỉ hiển thị MiniPlayerBar khi không ở màn hình MusicPlayer hoặc VideoPlayer
-            if (showBottomBar) {
-                MiniPlayerBar(
-                    viewModel = playbackViewModel,
-                    onNavigateToPlayer = {
-                        // MiniPlayerBar sẽ navigate dựa trên currentItem trong state
-                        // Tạm thời navigate đến route template, sẽ cần logic phức tạp hơn
-                        val currentMediaId = playbackViewModel.playbackState.value.currentItem?.id
-                        if (currentMediaId != null) {
-                            navController.navigate(Screen.MusicPlayer.createRoute(currentMediaId))
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 56.dp)
-                )
+            if (shouldShowMiniPlayer) {
+                MiniPlayerBar(viewModel = musicPlayerViewModel, onClickBar = {
+                    // MiniPlayerBar sẽ navigate dựa trên currentItem trong state
+                    val currentMediaId = playbackState.currentItem?.id ?: musicPlayerState.currentItem?.id
+                    if (currentMediaId != null) {
+                        navController.navigate(Screen.MusicPlayer.createRoute(currentMediaId))
+                    }
+                }, modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .height(72.dp), onTogglePlayPause = {
+                    musicPlayerViewModel.togglePlayPause()
+                }, onSkipNext = {
+                    musicPlayerViewModel.skipToNext()
+                }, onSkipPrevious = {
+                    musicPlayerViewModel.skipToPrevious()
+                })
             }
         }
     }
