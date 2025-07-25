@@ -3,9 +3,11 @@ package com.tinhtx.player.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.tinhtx.player.presentation.R
 
 // Default Material 3 Typography
 val DefaultTypography = Typography(
@@ -114,4 +116,22 @@ val DefaultTypography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
+)
+
+enum class IconStyle {
+    Outlined,
+    Rounded,
+    Sharp
+}
+
+val materialSymbolsOutlined = FontFamily(
+    Font(R.font.symbols_outlined, FontWeight.Normal)
+)
+
+val materialSymbolsRounded = FontFamily(
+    Font(R.font.symbols_rounded, FontWeight.Normal)
+)
+
+val materialSymbolsSharp = FontFamily(
+    Font(R.font.symbols_sharp, FontWeight.Normal)
 )
